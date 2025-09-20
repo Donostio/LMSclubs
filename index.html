@@ -420,13 +420,17 @@
         // Listen for changes on all checkbox filters
         document.querySelectorAll('#day-filter, #when-filter, #club-name-filter').forEach(container => {
             container.addEventListener('change', (event) => {
-                // If "All" is selected, unselect all others. If another is selected, unselect "All"
+                // This logic is for multi-select checkboxes with an "All" option.
+                // The Club Name filter does not have an "All" option, so it can just filter directly.
                 if (event.target.value === 'All' && event.target.checked) {
                     container.querySelectorAll('input').forEach(cb => {
                         if (cb.value !== 'All') cb.checked = false;
                     });
                 } else if (event.target.value !== 'All' && event.target.checked) {
-                    container.querySelector('input[value="All"]').checked = false;
+                    const allCheckbox = container.querySelector('input[value="All"]');
+                    if (allCheckbox) {
+                        allCheckbox.checked = false;
+                    }
                 }
                 filterClubs();
             });
@@ -436,11 +440,11 @@
             searchInput.value = '';
             yearFilter.value = '';
             departmentFilter.value = '';
-            // Uncheck all checkboxes except 'All'
-            document.querySelectorAll('#day-filter input, #when-filter input, #club-name-filter input').forEach(checkbox => {
+            // Uncheck all checkboxes except 'All' for applicable filters
+            document.querySelectorAll('#day-filter input, #when-filter input').forEach(checkbox => {
                 checkbox.checked = checkbox.value === 'All';
             });
-            // Clear club name checkboxes
+            // Clear all club name checkboxes
             document.querySelectorAll('#club-name-filter input').forEach(checkbox => {
                 checkbox.checked = false;
             });
@@ -453,6 +457,7 @@
 
 </body>
 </html>
+
 
 
 
