@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMS Clubs Tool</title>
+    <!-- Tailwind CSS from CDN for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter font for a clean look -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            -webkit-tap-highlight-color: transparent; /* Removes highlight on tap */
+        }
+        .filter-panel {
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(100%);
+        }
+        .filter-panel.is-active {
+            transform: translateX(0);
+        }
+        .backdrop {
+            transition: opacity 0.3s ease-in-out;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .backdrop.is-active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center">
+
+    <!-- Main App Container -->
+    <div class="relative w-full max-w-2xl mx-auto flex flex-col p-4 sm:p-6 bg-white rounded-b-3xl shadow-lg">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-4">
+            <h1 class="text-3xl font-bold text-gray-800">LMS Clubs</h1>
+            <button id="filter-btn" class="p-2 bg-purple-600 text-white rounded-full shadow-md hover:bg-purple-700 transition-colors duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c1.353 0 2.651.13 3.9.362 3.329.627 5.952 2.871 6.848 6.002C23.518 13.923 23 18 23 18h-4.229a4.5 4.5 0 0 0-4.5-4.5H9.729a4.5 4.5 0 0 0-4.5 4.5H1C1 18 1.482 13.923 2.252 9.364 3.148 6.233 5.771 3.99 9.1 3.362A15.865 15.865 0 0 1 12 3Z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5h.007v.008h-.007v-.008Zm-.007 3.75h.007v.008h-.007v-.008Zm.007 3.75h.007v.008h-.007v-.008Zm2.25-3.75h.007v.008h-.007v-.008Zm.007-3.75h.007v.008h-.007v-.008Zm.007 7.5h.007v.008h-.007v-.008Zm-3.75-3.75h.007v.008h-.007v-.008Zm-.007 3.75h.007v.008h-.007v-.008Zm.007 3.75h.007v.008h-.007v-.008Z" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Search Input -->
+        <div class="relative mb-6">
+            <input type="text" id="search-input" placeholder="Search for a club..." class="w-full pl-10 pr-4 py-2 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors border-2 border-gray-200">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+            </svg>
+        </div>
+        
+        <!-- Filter Overlay (Hidden by default) -->
+        <div id="filter-overlay" class="fixed inset-0 z-40 bg-black bg-opacity-50 backdrop-blur-sm backdrop is-active"></div>
+        
+        <div id="filter-panel" class="fixed right-0 top-0 h-full w-full max-w-sm bg-white shadow-xl z-50 p-6 flex flex-col filter-panel">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Filters</h2>
+                <button id="close-filter-btn" class="p-2 text-gray-500 rounded-full hover:bg-gray-100 transition-colors duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Filter Dropdowns -->
+            <div class="space-y-4 mb-8">
+                <div>
+                    <label for="year-filter" class="block text-gray-700 font-medium mb-1">Year Group</label>
+                    <select id="year-filter" class="w-full p-3 rounded-xl border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors">
+                        <option value="all">All</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="day-filter" class="block text-gray-700 font-medium mb-1">Day</label>
+                    <select id="day-filter" class="w-full p-3 rounded-xl border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors">
+                        <option value="all">All</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="time-filter" class="block text-gray-700 font-medium mb-1">Time</label>
+                    <select id="time-filter" class="w-full p-3 rounded-xl border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors">
+                        <option value="all">All</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="department-filter" class="block text-gray-700 font-medium mb-1">Department</label>
+                    <select id="department-filter" class="w-full p-3 rounded-xl border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors">
+                        <option value="all">All</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button id="clear-filters-btn" class="w-full py-3 bg-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-300 transition-colors duration-200 mt-auto">Clear Filters</button>
+        </div>
+
+        <!-- Clubs List -->
+        <div id="clubs-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+            <!-- Club cards will be dynamically inserted here -->
+        </div>
+
+        <!-- No Results Message -->
+        <div id="no-results" class="hidden text-center text-gray-500 py-12">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 mx-auto mb-4 text-gray-300">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+            </svg>
+            <p class="text-xl font-medium">No clubs found matching your criteria.</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Sample club data. Replace this with your actual data.
+            const clubsData = [
+                { name: "Chess Club", year: "Year 7", day: "Monday", time: "Lunchtime", department: "Maths", teacher: "Mr Smith" },
+                { name: "Robotics", year: "Year 8", day: "Tuesday", time: "After School", department: "Design & Technology", teacher: "Mr Jones" },
+                { name: "Orchestra", year: "Year 9", day: "Monday", time: "After School", department: "Music", teacher: "Mrs Davis" },
+                { name: "Debate Society", year: "Year 10", day: "Wednesday", time: "Lunchtime", department: "English", teacher: "Ms White" },
+                { name: "Photography", year: "Year 7", day: "Thursday", time: "After School", department: "Art", teacher: "Mr Brown" },
+                { name: "Coding Club", year: "Year 8", day: "Monday", time: "Lunchtime", department: "Computer Science", teacher: "Mr Davis" },
+                { name: "Football", year: "Year 9", day: "Tuesday", time: "After School", department: "PE", teacher: "Mr Wilson" },
+                { name: "Drama Club", year: "Year 10", day: "Wednesday", time: "After School", department: "Drama", teacher: "Mrs Miller" },
+                { name: "Science Society", year: "Year 7", day: "Friday", time: "Lunchtime", department: "Science", teacher: "Mrs Green" },
+                { name: "Book Club", year: "Year 8", day: "Wednesday", time: "Lunchtime", department: "English", teacher: "Ms Evans" },
+            ];
+
+            // DOM elements
+            const clubsList = document.getElementById('clubs-list');
+            const noResultsMessage = document.getElementById('no-results');
+            const filterBtn = document.getElementById('filter-btn');
+            const closeFilterBtn = document.getElementById('close-filter-btn');
+            const filterPanel = document.getElementById('filter-panel');
+            const filterOverlay = document.getElementById('filter-overlay');
+            const searchInput = document.getElementById('search-input');
+            const yearFilter = document.getElementById('year-filter');
+            const dayFilter = document.getElementById('day-filter');
+            const timeFilter = document.getElementById('time-filter');
+            const departmentFilter = document.getElementById('department-filter');
+            const clearFiltersBtn = document.getElementById('clear-filters-btn');
+
+            // Collect unique values for filters
+            const uniqueYears = [...new Set(clubsData.map(c => c.year))].sort();
+            const uniqueDays = [...new Set(clubsData.map(c => c.day))].sort();
+            const uniqueTimes = [...new Set(clubsData.map(c => c.time))].sort();
+            const uniqueDepartments = [...new Set(clubsData.map(c => c.department))].sort();
+
+            // Populate filter dropdowns
+            const populateDropdown = (dropdown, options) => {
+                options.forEach(option => {
+                    const opt = document.createElement('option');
+                    opt.value = option;
+                    opt.textContent = option;
+                    dropdown.appendChild(opt);
+                });
+            };
+            populateDropdown(yearFilter, uniqueYears);
+            populateDropdown(dayFilter, uniqueDays);
+            populateDropdown(timeFilter, uniqueTimes);
+            populateDropdown(departmentFilter, uniqueDepartments);
+
+            // Function to render club cards
+            const renderClubs = (filteredClubs) => {
+                clubsList.innerHTML = '';
+                if (filteredClubs.length === 0) {
+                    noResultsMessage.classList.remove('hidden');
+                } else {
+                    noResultsMessage.classList.add('hidden');
+                    filteredClubs.forEach(club => {
+                        const clubCard = document.createElement('div');
+                        clubCard.className = "bg-white p-6 rounded-xl shadow-lg border-t-4 border-purple-500 transition-transform duration-200 transform hover:scale-105";
+                        clubCard.innerHTML = `
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">${club.name}</h3>
+                            <p class="text-sm text-gray-600 mb-1"><span class="font-medium text-gray-700">Year Group:</span> ${club.year}</p>
+                            <p class="text-sm text-gray-600 mb-1"><span class="font-medium text-gray-700">Day:</span> ${club.day}</p>
+                            <p class="text-sm text-gray-600 mb-1"><span class="font-medium text-gray-700">Time:</span> ${club.time}</p>
+                            <p class="text-sm text-gray-600"><span class="font-medium text-gray-700">Department:</span> ${club.department}</p>
+                        `;
+                        clubsList.appendChild(clubCard);
+                    });
+                }
+            };
+
+            // Main filtering logic
+            const filterClubs = () => {
+                const year = yearFilter.value;
+                const day = dayFilter.value;
+                const time = timeFilter.value;
+                const department = departmentFilter.value;
+                const searchTerm = searchInput.value.toLowerCase();
+
+                const filtered = clubsData.filter(club => {
+                    const matchesSearch = club.name.toLowerCase().includes(searchTerm) || club.department.toLowerCase().includes(searchTerm);
+                    const matchesYear = year === 'all' || club.year === year;
+                    const matchesDay = day === 'all' || club.day === day;
+                    const matchesTime = time === 'all' || club.time === time;
+                    const matchesDepartment = department === 'all' || club.department === department;
+                    
+                    return matchesSearch && matchesYear && matchesDay && matchesTime && matchesDepartment;
+                });
+                renderClubs(filtered);
+            };
+
+            // Event Listeners
+            filterBtn.addEventListener('click', () => {
+                filterPanel.classList.add('is-active');
+                filterOverlay.classList.add('is-active');
+            });
+            closeFilterBtn.addEventListener('click', () => {
+                filterPanel.classList.remove('is-active');
+                filterOverlay.classList.remove('is-active');
+            });
+            filterOverlay.addEventListener('click', () => {
+                filterPanel.classList.remove('is-active');
+                filterOverlay.classList.remove('is-active');
+            });
+
+            searchInput.addEventListener('input', filterClubs);
+            yearFilter.addEventListener('change', filterClubs);
+            dayFilter.addEventListener('change', filterClubs);
+            timeFilter.addEventListener('change', filterClubs);
+            departmentFilter.addEventListener('change', filterClubs);
+
+            clearFiltersBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                yearFilter.value = 'all';
+                dayFilter.value = 'all';
+                timeFilter.value = 'all';
+                departmentFilter.value = 'all';
+                filterClubs(); // Re-render with all filters cleared
+            });
+
+            // Initial render
+            filterClubs();
+        });
+    </script>
+
+</body>
+</html>
