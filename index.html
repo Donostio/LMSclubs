@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LMS Clubs Tool</title>
+    <title>Lady Margaret School Clubs 2025-26</title>
+    <!-- Add your favicon here. Replace 'path/to/your/logo.png' with your file's location. -->
+    <!-- The recommended format is .png with a transparent background. A size of 32x32 pixels is ideal. -->
+    <link rel="icon" type="image/png" href="https://placehold.co/32x32/1d4ed8/ffffff.png?text=LMS">
     <!-- Tailwind CSS from CDN for modern styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Inter font for a clean look -->
@@ -39,13 +42,18 @@
 
         <!-- Header -->
         <div class="flex items-center justify-between mb-4">
-            <h1 class="text-3xl font-bold text-gray-800">LMS Clubs</h1>
+            <h1 class="text-3xl font-bold text-gray-800">Lady Margaret School Clubs 2025-26</h1>
             <button id="filter-btn" class="p-2 bg-purple-600 text-white rounded-full shadow-md hover:bg-purple-700 transition-colors duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c1.353 0 2.651.13 3.9.362 3.329.627 5.952 2.871 6.848 6.002C23.518 13.923 23 18 23 18h-4.229a4.5 4.5 0 0 0-4.5-4.5H9.729a4.5 4.5 0 0 0-4.5 4.5H1C1 18 1.482 13.923 2.252 9.364 3.148 6.233 5.771 3.99 9.1 3.362A15.865 15.865 0 0 1 12 3Z" />
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5h.007v.008h-.007v-.008Zm-.007 3.75h.007v.008h-.007v-.008Zm.007 3.75h.007v.008h-.007v-.008Zm2.25-3.75h.007v.008h-.007v-.008Zm.007-3.75h.007v.008h-.007v-.008Zm.007 7.5h.007v.008h-.007v-.008Zm-3.75-3.75h.007v.008h-.007v-.008Zm-.007 3.75h.007v.008h-.007v-.008Zm.007 3.75h.007v.008h-.007v-.008Z" />
                 </svg>
             </button>
+        </div>
+        
+        <!-- Active Filters Summary -->
+        <div id="active-filters-summary" class="text-sm text-gray-500 mb-4 transition-all duration-300">
+            <!-- Filter summary will be dynamically added here -->
         </div>
 
         <!-- Search Input -->
@@ -174,6 +182,127 @@
 
     <script>
         let clubsData = [];
+        const clubsList = document.getElementById('clubs-list');
+        const noResultsMessage = document.getElementById('no-results');
+        const filterBtn = document.getElementById('filter-btn');
+        const closeFilterBtn = document.getElementById('close-filter-btn');
+        const filterPanel = document.getElementById('filter-panel');
+        const filterOverlay = document.getElementById('filter-overlay');
+        const searchInput = document.getElementById('search-input');
+        const yearFilter = document.getElementById('year-filter');
+        const departmentFilter = document.getElementById('department-filter');
+        const clearFiltersBtn = document.getElementById('clear-filters-btn');
+        const clearYearBtn = document.getElementById('clear-year-btn');
+        const clearDayBtn = document.getElementById('clear-day-btn');
+        const clearWhenBtn = document.getElementById('clear-when-btn');
+        const clearDepartmentBtn = document.getElementById('clear-department-btn');
+        const clearClubNameBtn = document.getElementById('clear-club-name-btn');
+        const activeFiltersSummary = document.getElementById('active-filters-summary');
+
+
+        // Function to populate checkbox filters with pre-selected options
+        const populateCheckboxes = (container, options, name, defaultSelected = []) => {
+            container.innerHTML = '';
+            options.forEach(option => {
+                const checkboxContainer = document.createElement('label');
+                checkboxContainer.className = "flex items-center space-x-2 cursor-pointer";
+                const isChecked = defaultSelected.includes(option);
+                checkboxContainer.innerHTML = `
+                    <input type="checkbox" name="${name}" value="${option}" class="rounded text-purple-600 focus:ring-purple-500" ${isChecked ? 'checked' : ''}>
+                    <span class="text-gray-700">${option}</span>
+                `;
+                container.appendChild(checkboxContainer);
+            });
+        };
+
+        // Function to update the filter summary display
+        const updateFilterSummary = () => {
+            const summaryParts = [];
+            
+            const year = yearFilter.value;
+            if (year) {
+                summaryParts.push(`Year: ${year}`);
+            }
+
+            const department = departmentFilter.value;
+            if (department) {
+                summaryParts.push(`Department: ${department}`);
+            }
+
+            const selectedDays = Array.from(document.querySelectorAll('#day-filter input[name="day"]:checked')).map(cb => cb.value);
+            if (selectedDays.length > 0 && !selectedDays.includes('All')) {
+                summaryParts.push(`Day: ${selectedDays.join(', ')}`);
+            }
+
+            const selectedWhen = Array.from(document.querySelectorAll('#when-filter input[name="when"]:checked')).map(cb => cb.value);
+            if (selectedWhen.length > 0 && !selectedWhen.includes('All')) {
+                summaryParts.push(`When: ${selectedWhen.join(', ')}`);
+            }
+            
+            const selectedClubNames = Array.from(document.querySelectorAll('#club-name-filter input[name="club-name"]:checked')).map(cb => cb.value);
+            if (selectedClubNames.length > 0) {
+                summaryParts.push(`Club: ${selectedClubNames.join(', ')}`);
+            }
+
+            if (summaryParts.length > 0) {
+                activeFiltersSummary.textContent = summaryParts.join(' | ');
+            } else {
+                activeFiltersSummary.textContent = 'All clubs shown';
+            }
+        };
+
+        // Main filtering logic
+        const filterClubs = () => {
+            const year = yearFilter.value;
+            const department = departmentFilter.value;
+            const searchTerm = searchInput.value.toLowerCase();
+
+            // Get selected checkbox values
+            const selectedDays = Array.from(document.querySelectorAll('#day-filter input[name="day"]:checked')).map(cb => cb.value);
+            const selectedWhen = Array.from(document.querySelectorAll('#when-filter input[name="when"]:checked')).map(cb => cb.value);
+            const selectedClubNames = Array.from(document.querySelectorAll('#club-name-filter input[name="club-name"]:checked')).map(cb => cb.value);
+
+            const filtered = clubsData.filter(club => {
+                const matchesSearch = (club.name && club.name.toLowerCase().includes(searchTerm)) || (club.department && club.department.toLowerCase().includes(searchTerm));
+                
+                // Year filter logic: includes "All Years" clubs if a specific year is selected.
+                const matchesYear = !year || club.year.includes('All Years') || club.year.some(y => y === year);
+
+                // Checkbox filter logic - If 'All' is selected, it matches all. Otherwise, it checks for specific matches.
+                const matchesDay = selectedDays.includes('All') || selectedDays.length === 0 || selectedDays.includes(club.day);
+                const matchesWhen = selectedWhen.includes('All') || selectedWhen.length === 0 || selectedWhen.includes(club.when);
+                const matchesDepartment = !department || club.department === department;
+                const matchesClubName = selectedClubNames.length === 0 || selectedClubNames.includes(club.name);
+                
+                return matchesSearch && matchesYear && matchesDay && matchesWhen && matchesDepartment && matchesClubName;
+            });
+            renderClubs(filtered);
+            updateFilterSummary(); // Update the summary after filtering
+        };
+
+        // Function to render club cards
+        const renderClubs = (clubs) => {
+            clubsList.innerHTML = '';
+            if (clubs.length === 0) {
+                noResultsMessage.classList.remove('hidden');
+                return;
+            }
+            noResultsMessage.classList.add('hidden');
+
+            clubs.forEach(club => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-6 rounded-xl shadow-md border border-gray-200 transition-all duration-300 hover:shadow-lg";
+                card.innerHTML = `
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">${club.name}</h3>
+                    <p class="text-gray-600"><strong>Day:</strong> ${club.day}</p>
+                    <p class="text-gray-600"><strong>When:</strong> ${club.when}</p>
+                    <p class="text-gray-600"><strong>Time:</strong> ${club.time}</p>
+                    <p class="text-gray-600"><strong>Year Group(s):</strong> ${club.year.join(', ')}</p>
+                    <p class="text-gray-600"><strong>Department:</strong> ${club.department}</p>
+                `;
+                clubsList.appendChild(card);
+            });
+        };
 
         // This function fetches the CSV, parses it, and then renders the clubs
         const fetchAndRenderClubs = async () => {
@@ -218,91 +347,6 @@
                 console.error("Error fetching or parsing CSV:", error);
                 loadingMessage.innerHTML = `<p class="mt-4 text-xl font-medium text-red-500">Failed to load data. Please check the file.</p>`;
             }
-        };
-
-        // DOM elements
-        const clubsList = document.getElementById('clubs-list');
-        const noResultsMessage = document.getElementById('no-results');
-        const filterBtn = document.getElementById('filter-btn');
-        const closeFilterBtn = document.getElementById('close-filter-btn');
-        const filterPanel = document.getElementById('filter-panel');
-        const filterOverlay = document.getElementById('filter-overlay');
-        const searchInput = document.getElementById('search-input');
-        const yearFilter = document.getElementById('year-filter');
-        const departmentFilter = document.getElementById('department-filter');
-        const clearFiltersBtn = document.getElementById('clear-filters-btn');
-        const clearYearBtn = document.getElementById('clear-year-btn');
-        const clearDayBtn = document.getElementById('clear-day-btn');
-        const clearWhenBtn = document.getElementById('clear-when-btn');
-        const clearDepartmentBtn = document.getElementById('clear-department-btn');
-        const clearClubNameBtn = document.getElementById('clear-club-name-btn');
-
-
-        // Function to populate checkbox filters with pre-selected options
-        const populateCheckboxes = (container, options, name, defaultSelected = []) => {
-            container.innerHTML = '';
-            options.forEach(option => {
-                const checkboxContainer = document.createElement('label');
-                checkboxContainer.className = "flex items-center space-x-2 cursor-pointer";
-                const isChecked = defaultSelected.includes(option);
-                checkboxContainer.innerHTML = `
-                    <input type="checkbox" name="${name}" value="${option}" class="rounded text-purple-600 focus:ring-purple-500" ${isChecked ? 'checked' : ''}>
-                    <span class="text-gray-700">${option}</span>
-                `;
-                container.appendChild(checkboxContainer);
-            });
-        };
-
-        // Main filtering logic
-        const filterClubs = () => {
-            const year = yearFilter.value;
-            const department = departmentFilter.value;
-            const searchTerm = searchInput.value.toLowerCase();
-
-            // Get selected checkbox values
-            const selectedDays = Array.from(document.querySelectorAll('#day-filter input[name="day"]:checked')).map(cb => cb.value);
-            const selectedWhen = Array.from(document.querySelectorAll('#when-filter input[name="when"]:checked')).map(cb => cb.value);
-            const selectedClubNames = Array.from(document.querySelectorAll('#club-name-filter input[name="club-name"]:checked')).map(cb => cb.value);
-
-            const filtered = clubsData.filter(club => {
-                const matchesSearch = (club.name && club.name.toLowerCase().includes(searchTerm)) || (club.department && club.department.toLowerCase().includes(searchTerm));
-                
-                // Year filter logic: includes "All Years" clubs if a specific year is selected.
-                const matchesYear = !year || club.year.includes('All Years') || club.year.some(y => y === year);
-
-                // Checkbox filter logic - If 'All' is selected, it matches all. Otherwise, it checks for specific matches.
-                const matchesDay = selectedDays.includes('All') || selectedDays.length === 0 || selectedDays.includes(club.day);
-                const matchesWhen = selectedWhen.includes('All') || selectedWhen.length === 0 || selectedWhen.includes(club.when);
-                const matchesDepartment = !department || club.department === department;
-                const matchesClubName = selectedClubNames.length === 0 || selectedClubNames.includes(club.name);
-                
-                return matchesSearch && matchesYear && matchesDay && matchesWhen && matchesDepartment && matchesClubName;
-            });
-            renderClubs(filtered);
-        };
-
-        // Function to render club cards
-        const renderClubs = (clubs) => {
-            clubsList.innerHTML = '';
-            if (clubs.length === 0) {
-                noResultsMessage.classList.remove('hidden');
-                return;
-            }
-            noResultsMessage.classList.add('hidden');
-
-            clubs.forEach(club => {
-                const card = document.createElement('div');
-                card.className = "bg-white p-6 rounded-xl shadow-md border border-gray-200 transition-all duration-300 hover:shadow-lg";
-                card.innerHTML = `
-                    <h3 class="text-xl font-bold text-gray-800 mb-2">${club.name}</h3>
-                    <p class="text-gray-600"><strong>Day:</strong> ${club.day}</p>
-                    <p class="text-gray-600"><strong>When:</strong> ${club.when}</p>
-                    <p class="text-gray-600"><strong>Time:</strong> ${club.time}</p>
-                    <p class="text-gray-600"><strong>Year Group(s):</strong> ${club.year.join(', ')}</p>
-                    <p class="text-gray-600"><strong>Department:</strong> ${club.department}</p>
-                `;
-                clubsList.appendChild(card);
-            });
         };
 
         // Event Listeners
@@ -358,16 +402,30 @@
         
         // Listen for changes on all checkbox filters
         document.querySelectorAll('#day-filter, #when-filter, #club-name-filter').forEach(container => {
-            container.addEventListener('change', filterClubs);
+            container.addEventListener('change', (event) => {
+                // If "All" is selected, unselect all others. If another is selected, unselect "All"
+                if (event.target.value === 'All' && event.target.checked) {
+                    container.querySelectorAll('input').forEach(cb => {
+                        if (cb.value !== 'All') cb.checked = false;
+                    });
+                } else if (event.target.value !== 'All' && event.target.checked) {
+                    container.querySelector('input[value="All"]').checked = false;
+                }
+                filterClubs();
+            });
         });
 
         clearFiltersBtn.addEventListener('click', () => {
             searchInput.value = '';
             yearFilter.value = '';
             departmentFilter.value = '';
-            // Uncheck all checkboxes
+            // Uncheck all checkboxes except 'All'
             document.querySelectorAll('#day-filter input, #when-filter input, #club-name-filter input').forEach(checkbox => {
                 checkbox.checked = checkbox.value === 'All';
+            });
+            // Clear club name checkboxes
+            document.querySelectorAll('#club-name-filter input').forEach(checkbox => {
+                checkbox.checked = false;
             });
             filterClubs(); // Re-render with all filters cleared
         });
@@ -378,6 +436,7 @@
 
 </body>
 </html>
+
 
 
 
