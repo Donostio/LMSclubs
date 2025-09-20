@@ -72,7 +72,7 @@
     <!-- Cat Container (for animation) -->
     <div id="cat-container" class="cat-container">
         <div id="cat-wrapper" class="cat-wrapper">
-            <img id="cat-image" src="" alt="A c" class="cat-image">
+            <img id="cat-image" src="" alt="" class="cat-image">
         </div>
     </div>
 
@@ -254,11 +254,12 @@
         const catWrapper = document.getElementById('cat-wrapper');
         let interactionCount = 0;
         
-        const catIntervalMin = 5;
-        const catIntervalMax = 20;
+        const catIntervalMin = 1;
+        const catIntervalMax = 5;
         let nextCatInteraction = Math.floor(Math.random() * (catIntervalMax - catIntervalMin + 1)) + catIntervalMin;
 
         const showCat = () => {
+            console.log("showCat() is being called. A cat should be appearing!");
             // Randomly choose a cat and a slide direction
             const catIndex = Math.floor(Math.random() * catImages.length);
             const slideFromRight = Math.random() < 0.5;
@@ -287,6 +288,7 @@
         
         const handleInteraction = () => {
             interactionCount++;
+            console.log(`Interaction detected. Current count: ${interactionCount}. Next cat at: ${nextCatInteraction}`);
             if (interactionCount >= nextCatInteraction) {
                 showCat();
                 // Reset the interaction counter and set the next random interval
@@ -559,10 +561,15 @@
 
         // Initial render
         document.addEventListener('DOMContentLoaded', fetchAndRenderClubs);
+
+        // Periodically trigger an interaction to ensure the cat appears,
+        // even if the user isn't actively interacting.
+        setInterval(handleInteraction, 3000);
     </script>
 
 </body>
 </html>
+
 
 
 
