@@ -264,9 +264,7 @@
             const filtered = clubsData.filter(club => {
                 const matchesSearch = (club.name && club.name.toLowerCase().includes(searchTerm)) || (club.department && club.department.toLowerCase().includes(searchTerm));
                 
-                // --- Start of FIX for Year Group Filtering ---
                 const matchesYear = !year || club.year.includes('All Years') || club.year.some(y => y.trim() === year);
-                // --- End of FIX for Year Group Filtering ---
 
                 // Checkbox filter logic - If 'All' is selected, it matches all. Otherwise, it checks for specific matches.
                 const matchesDay = selectedDays.includes('All') || selectedDays.length === 0 || selectedDays.includes(club.day);
@@ -324,7 +322,8 @@
                         day: cols[2] || null,
                         weeks: cols[3] || null,
                         time: cols[4] || null,
-                        year: cols[5].split(',').map(y => y.trim()) || [], // Split and trim years
+                        // FIX: Use a regex to split by comma, ampersand, or space
+                        year: cols[5].split(/[,\s&]+/).map(y => y.trim()).filter(Boolean) || [],
                         location: cols[6] || null,
                         staff: cols[7] || null,
                         department: cols[8] || null
@@ -436,6 +435,7 @@
 
 </body>
 </html>
+
 
 
 
