@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lady Margaret School Clubs 2025-26</title>
-    <!-- Add your favicon here. Replace 'path/to/your/logo.png' with your file's location. -->
-    <!-- The recommended format is .png with a transparent background. A size of 32x32 pixels is ideal. -->
-    <link rel="icon" type="image/png" href="https://placehold.co/32x32/1d4ed8/ffffff.png?text=LMS">
+    <!-- Your favicon file. Name your 32x32px transparent PNG 'lms_logo.png' and place it in the same directory. -->
+    <link rel="icon" type="image/png" href="lms_logo.png">
     <!-- Tailwind CSS from CDN for modern styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Inter font for a clean look -->
@@ -265,8 +264,9 @@
             const filtered = clubsData.filter(club => {
                 const matchesSearch = (club.name && club.name.toLowerCase().includes(searchTerm)) || (club.department && club.department.toLowerCase().includes(searchTerm));
                 
-                // Year filter logic: includes "All Years" clubs if a specific year is selected.
-                const matchesYear = !year || club.year.includes('All Years') || club.year.some(y => y === year);
+                // --- Start of FIX for Year Group Filtering ---
+                const matchesYear = !year || club.year.includes('All Years') || club.year.some(y => y.trim() === year);
+                // --- End of FIX for Year Group Filtering ---
 
                 // Checkbox filter logic - If 'All' is selected, it matches all. Otherwise, it checks for specific matches.
                 const matchesDay = selectedDays.includes('All') || selectedDays.length === 0 || selectedDays.includes(club.day);
@@ -436,6 +436,7 @@
 
 </body>
 </html>
+
 
 
 
