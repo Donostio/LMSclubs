@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lady Margaret School Clubs 2025-26</title>
+    <title>LMS Clubs</title>
     <!-- Your favicon file. Name your 32x32px transparent PNG 'lms_logo.png' and place it in the same directory. -->
     <link rel="icon" type="image/png" href="lms_logo.png">
     <!-- Tailwind CSS from CDN for modern styling -->
@@ -294,9 +294,11 @@
                     <h3 class="text-xl font-bold text-gray-800 mb-2">${club.name}</h3>
                     <p class="text-gray-600"><strong>Day:</strong> ${club.day}</p>
                     <p class="text-gray-600"><strong>When:</strong> ${club.when}</p>
-                    <p class="text-gray-600"><strong>Time:</strong> ${club.time}</p>
                     <p class="text-gray-600"><strong>Year Group(s):</strong> ${club.year.join(', ')}</p>
                     <p class="text-gray-600"><strong>Department:</strong> ${club.department}</p>
+                    <p class="text-sm text-gray-400 mt-2 border-t pt-2 border-gray-100">
+                        Where: ${club.location}, Who: ${club.staff}, Week: ${club.weeks}, Time: ${club.time}
+                    </p>
                 `;
                 clubsList.appendChild(card);
             });
@@ -435,6 +437,7 @@
 
 </body>
 </html>
+
 
 
 
