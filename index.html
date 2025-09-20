@@ -59,23 +59,6 @@
             transform: translateY(-50%) translateX(calc(-100% + 100vw));
         }
 
-        /* Special animation: slides slowly from the top, half image visible */
-        .cat-container.is-special {
-            top: 0%;
-            left: 50%;
-            transform: translateX(-50%) translateY(-100%);
-        }
-        .cat-container.is-special .cat-wrapper {
-            overflow: hidden;
-            height: 75px; /* Half of 150px image */
-        }
-        .cat-container.is-special.is-active {
-            transform: translateX(-50%) translateY(0);
-        }
-        .cat-container.is-special .cat-image {
-            transform: rotate(180deg);
-        }
-
         .cat-container img {
             width: 150px;
             height: auto;
@@ -270,17 +253,12 @@
         const catImageElement = document.getElementById('cat-image');
         const catWrapper = document.getElementById('cat-wrapper');
         let interactionCount = 0;
-        let catAppearances = 0;
         
-        const normalCatIntervalMin = 5;
-        const normalCatIntervalMax = 20;
-        let nextNormalCatInteraction = Math.floor(Math.random() * (normalCatIntervalMax - normalCatIntervalMin + 1)) + normalCatIntervalMin;
+        const catIntervalMin = 5;
+        const catIntervalMax = 20;
+        let nextCatInteraction = Math.floor(Math.random() * (catIntervalMax - catIntervalMin + 1)) + catIntervalMin;
 
-        const specialCatIntervalMin = 8;
-        const specialCatIntervalMax = 12;
-        let nextSpecialCatAppearance = Math.floor(Math.random() * (specialCatIntervalMax - specialCatIntervalMin + 1)) + specialCatIntervalMin;
-        
-        const showNormalCat = () => {
+        const showCat = () => {
             // Randomly choose a cat and a slide direction
             const catIndex = Math.floor(Math.random() * catImages.length);
             const slideFromRight = Math.random() < 0.5;
@@ -289,8 +267,6 @@
             
             // Apply standard cat animation classes and styles
             catContainer.classList.add('is-normal');
-            catContainer.classList.remove('is-special');
-            catImageElement.classList.remove('is-upside-down');
             catWrapper.style.overflow = 'visible';
             catContainer.style.transitionDuration = '0.5s';
             
@@ -309,44 +285,13 @@
             }, 2000);
         };
         
-        const showSpecialCat = () => {
-            // Randomly choose a cat
-            const catIndex = Math.floor(Math.random() * catImages.length);
-            catImageElement.src = catImages[catIndex];
-
-            // Apply special cat animation classes and styles
-            catContainer.classList.add('is-special', 'is-active');
-            catContainer.classList.remove('is-normal');
-            catImageElement.classList.add('is-upside-down');
-            catWrapper.style.overflow = 'hidden';
-            
-            // Set up the slow slide-in and fast slide-out
-            catContainer.style.transitionDuration = '2s';
-
-            // After 2 seconds, remove the active class and transition quickly out
-            setTimeout(() => {
-                catContainer.style.transitionDuration = '0.5s';
-                catContainer.classList.remove('is-active');
-            }, 2000);
-        };
-
         const handleInteraction = () => {
             interactionCount++;
-            if (interactionCount >= nextNormalCatInteraction) {
-                // If the special cat condition is met, show the special cat.
-                if (catAppearances >= nextSpecialCatAppearance) {
-                    showSpecialCat();
-                    catAppearances = 0;
-                    nextSpecialCatAppearance = Math.floor(Math.random() * (specialCatIntervalMax - specialCatIntervalMin + 1)) + specialCatIntervalMin;
-                } else {
-                    // Otherwise, show a normal cat.
-                    showNormalCat();
-                    catAppearances++;
-                }
-
-                // Reset the interaction counter and set the next random interval for any cat appearance
+            if (interactionCount >= nextCatInteraction) {
+                showCat();
+                // Reset the interaction counter and set the next random interval
                 interactionCount = 0;
-                nextNormalCatInteraction = Math.floor(Math.random() * (normalCatIntervalMax - normalCatIntervalMin + 1)) + normalCatIntervalMin;
+                nextCatInteraction = Math.floor(Math.random() * (catIntervalMax - catIntervalMin + 1)) + catIntervalMin;
             }
         };
 
@@ -618,6 +563,7 @@
 
 </body>
 </html>
+
 
 
 
