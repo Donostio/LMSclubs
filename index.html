@@ -3,586 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LMS Clubs</title>
-    <!-- Your favicon file. Name your 32x32px transparent PNG 'lms_logo.png' and place it in the same directory. -->
-    <link rel="icon" type="image/png" href="lms_logo.png">
-    <!-- Tailwind CSS from CDN for modern styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Inter font for a clean look -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <title>Image Animation</title>
     <style>
         body {
-            font-family: 'Inter', sans-serif;
-            -webkit-tap-highlight-color: transparent; /* Removes highlight on tap */
-            /* User requested mostly black background by removing every second red strip. */
-            background-color: #000;
-            background-image: repeating-linear-gradient(to right, #ef4444, #ef4444 2px, #000 2px, #000 24px);
-        }
-        .filter-panel {
-            transition: transform 0.3s ease-in-out;
-            transform: translateX(100%);
-        }
-        .filter-panel.is-active {
-            transform: translateX(0);
-        }
-        .backdrop {
-            transition: opacity 0.3s ease-in-out;
-            opacity: 0;
-            pointer-events: none;
-        }
-        .backdrop.is-active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        
-        /* New custom CSS animations for the cat cameos */
-        @keyframes slideInFromBottomLeft {
-            0% {
-                transform: translate(-150vw, 150vh) rotate(-45deg);
-                opacity: 0;
-            }
-            100% {
-                transform: translate(20vw, -10vh) rotate(-45deg);
-                opacity: 1;
-            }
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            overflow: hidden;
+            font-family: sans-serif;
         }
 
-        @keyframes slideInFromBottomRight {
-            0% {
-                transform: translate(150vw, 150vh) rotate(45deg);
-                opacity: 0;
-            }
-            100% {
-                transform: translate(-20vw, -10vh) rotate(45deg);
-                opacity: 1;
-            }
+        .canvas-container {
+            position: relative;
+            width: 90vw;
+            max-width: 800px;
+            height: 60vh;
+            max-height: 600px;
+            background-color: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
         }
 
-        @keyframes slideOut {
-            0% {
-                opacity: 1;
-            }
-            100% {
-                opacity: 0;
-            }
-        }
-        
-        /* Main container for the cat animations */
-        .cat-container {
-            position: fixed;
-            z-index: 100;
-            pointer-events: none;
-            will-change: transform, opacity;
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
         }
 
-        /* Specific animation classes */
-        .cat-container.is-diagonal-bottom-left {
-            animation: slideInFromBottomLeft 2s forwards, slideOut 0.5s 2s forwards;
-        }
-        .cat-container.is-diagonal-bottom-right {
-            animation: slideInFromBottomRight 2s forwards, slideOut 0.5s 2s forwards;
-        }
-
-        .cat-container img {
-            width: 150px;
-            height: auto;
-            border-radius: 0.75rem;
-            transform: scale(2.5); /* Image is 2.5 times larger */
-            filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.3)); /* Use drop-shadow for transparent images */
+        .title {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col items-center">
-
-    <!-- Cat Container (for animation) -->
-    <div id="cat-container" class="cat-container">
-        <div id="cat-wrapper" class="cat-wrapper">
-            <img id="cat-image" src="" alt="" class="cat-image">
-        </div>
-    </div>
-
-    <!-- Main App Container -->
-    <div class="relative w-full max-w-2xl mx-auto flex flex-col p-4 sm:p-6 bg-white rounded-b-3xl shadow-lg">
-
-        <!-- Header -->
-        <div class="flex items-center justify-between mb-4">
-            <h1 class="text-3xl font-bold text-gray-800">Lady Margaret School Clubs 2025-26</h1>
-            <button id="filter-btn" class="p-2 bg-purple-600 text-white rounded-full shadow-md hover:bg-purple-700 transition-colors duration-200">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 18H7.5m3-6h9.75m-9.75 0a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 12H7.5" />
-                </svg>
-            </button>
-        </div>
-        
-        <!-- Active Filters Summary -->
-        <div id="active-filters-summary" class="text-sm text-gray-500 mb-4 transition-all duration-300">
-            <!-- Filter summary will be dynamically added here -->
-        </div>
-
-        <!-- Search Input -->
-        <div class="relative mb-6">
-            <input type="text" id="search-input" placeholder="Search for a club..." class="w-full pl-10 pr-4 py-2 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors border-2 border-gray-200">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-            </svg>
-        </div>
-        
-        <!-- Filter Overlay (Hidden by default) -->
-        <div id="filter-overlay" class="fixed inset-0 z-40 bg-black bg-opacity-50 backdrop-blur-sm backdrop hidden"></div>
-        
-        <div id="filter-panel" class="fixed right-0 top-0 h-full w-full max-w-sm bg-white shadow-xl z-50 p-6 flex flex-col filter-panel">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold text-gray-800">Filters</h2>
-                <button id="close-filter-btn" class="p-2 text-gray-500 rounded-full hover:bg-gray-100 transition-colors duration-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-            
-            <!-- Filter Dropdowns -->
-            <div class="space-y-6 mb-8 overflow-y-auto">
-                <div>
-                    <div class="flex items-center justify-between">
-                        <label for="year-filter" class="block text-gray-700 font-medium mb-1">Year Group</label>
-                        <button id="clear-year-btn" class="text-xs text-purple-600 hover:text-purple-800 font-semibold transition-colors">Clear</button>
-                    </div>
-                    <select id="year-filter" class="w-full p-3 rounded-xl border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors">
-                        <option value="">All</option>
-                        <option value="7">7</option>
-                        <option value="8">8</option>
-                        <option value="9">9</option>
-                        <option value="10">10</option>
-                        <option value="11">11</option>
-                        <option value="12">12</option>
-                        <option value="13">13</option>
-                    </select>
-                </div>
-                
-                <!-- Multi-select for Day -->
-                <div>
-                    <div class="flex items-center justify-between">
-                        <label class="block text-gray-700 font-medium mb-2">Day</label>
-                        <button id="clear-day-btn" class="text-xs text-purple-600 hover:text-purple-800 font-semibold transition-colors">Clear</button>
-                    </div>
-                    <div id="day-filter" class="bg-gray-50 rounded-xl p-4 space-y-2 border border-gray-200">
-                        <!-- Checkboxes will be dynamically inserted here -->
-                    </div>
-                </div>
-
-                <!-- Multi-select for When -->
-                <div>
-                    <div class="flex items-center justify-between">
-                        <label class="block text-gray-700 font-medium mb-2">When</label>
-                        <button id="clear-when-btn" class="text-xs text-purple-600 hover:text-purple-800 font-semibold transition-colors">Clear</button>
-                    </div>
-                    <div id="when-filter" class="bg-gray-50 rounded-xl p-4 space-y-2 border border-gray-200">
-                        <!-- Checkboxes will be dynamically inserted here -->
-                    </div>
-                </div>
-
-                <!-- Dropdown for Department -->
-                <div>
-                    <div class="flex items-center justify-between">
-                        <label for="department-filter" class="block text-gray-700 font-medium mb-1">Department</label>
-                        <button id="clear-department-btn" class="text-xs text-purple-600 hover:text-purple-800 font-semibold transition-colors">Clear</button>
-                    </div>
-                    <select id="department-filter" class="w-full p-3 rounded-xl border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors">
-                        <option value="">All</option>
-                        <option value="ART">ART</option>
-                        <option value="CS">CS</option>
-                        <option value="Drama">Drama</option>
-                        <option value="DT">DT</option>
-                        <option value="English">English</option>
-                        <option value="Maths">Maths</option>
-                        <option value="Music">Music</option>
-                        <option value="Other">Other</option>
-                        <option value="Pastoral">Pastoral</option>
-                        <option value="PE">PE</option>
-                        <option value="RS">RS</option>
-                        <option value="Science">Science</option>
-                        <option value="SEN">SEN</option>
-                    </select>
-                </div>
-                
-                <!-- Multi-select for Club Name -->
-                <div>
-                    <div class="flex items-center justify-between">
-                        <label class="block text-gray-700 font-medium mb-2">Club Name</label>
-                        <button id="clear-club-name-btn" class="text-xs text-purple-600 hover:text-purple-800 font-semibold transition-colors">Clear</button>
-                    </div>
-                    <div id="club-name-filter" class="bg-gray-50 rounded-xl p-4 space-y-2 border border-gray-200 max-h-64 overflow-y-auto">
-                        <!-- Checkboxes will be dynamically inserted here -->
-                    </div>
-                </div>
-            </div>
-            
-            <button id="clear-filters-btn" class="w-full py-3 bg-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-300 transition-colors duration-200 mt-auto">Clear All Filters</button>
-        </div>
-
-        <!-- Clubs List -->
-        <div id="clubs-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-            <!-- Club cards will be dynamically inserted here -->
-        </div>
-
-        <!-- Loading message -->
-        <div id="loading-message" class="text-center text-gray-500 py-12 hidden">
-            <svg class="animate-spin h-8 w-8 text-purple-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.96l2-2.669z"></path>
-            </svg>
-            <p class="mt-4 text-xl font-medium">Loading clubs data...</p>
-        </div>
-
-        <!-- No Results Message -->
-        <div id="no-results" class="hidden text-center text-gray-500 py-12">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 mx-auto mb-4 text-gray-300">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
-            </svg>
-            <p class="text-xl font-medium">No clubs found matching your criteria.</p>
-        </div>
-        
-        <!-- Footer text added here -->
-        <div class="text-center text-xs text-gray-400 mt-8">
-            <p>This site is maintained by LMS class reps 🌹</p> 
-            <p>Your feedback helps us make the site better for everyone. <a href="https://forms.gle/5Gdrj6RPAEXf7jKy8" target="_blank" rel="noopener noreferrer" class="text-purple-600 hover:text-purple-800 transition-colors duration-200">Please share your thoughts here 💬</a><p>
-        </div>
+<body>
+    <div class="canvas-container">
+        <div class="title">Animated Image</div>
+        <canvas id="animationCanvas"></canvas>
     </div>
 
     <script>
-        let clubsData = [];
-        const clubsList = document.getElementById('clubs-list');
-        const noResultsMessage = document.getElementById('no-results');
-        const filterBtn = document.getElementById('filter-btn');
-        const closeFilterBtn = document.getElementById('close-filter-btn');
-        const filterPanel = document.getElementById('filter-panel');
-        const filterOverlay = document.getElementById('filter-overlay');
-        const searchInput = document.getElementById('search-input');
-        const yearFilter = document.getElementById('year-filter');
-        const departmentFilter = document.getElementById('department-filter');
-        const clearFiltersBtn = document.getElementById('clear-filters-btn');
-        const clearYearBtn = document.getElementById('clear-year-btn');
-        const clearDayBtn = document.getElementById('clear-day-btn');
-        const clearWhenBtn = document.getElementById('clear-when-btn');
-        const clearDepartmentBtn = document.getElementById('clear-department-btn');
-        const clearClubNameBtn = document.getElementById('clear-club-name-btn');
-        const activeFiltersSummary = document.getElementById('active-filters-summary');
+        window.onload = function() {
+            const canvas = document.getElementById('animationCanvas');
+            const ctx = canvas.getContext('2d');
 
-        // Cat Cameo variables and data
-        const catImages = [
-            'images/1C.png',
-            'images/2C.png',
-            'images/3.png'
-        ];
-        const catContainer = document.getElementById('cat-container');
-        const catImageElement = document.getElementById('cat-image');
-        const catWrapper = document.getElementById('cat-wrapper');
-        let interactionCount = 0;
-        
-        // Drastically increased interval for less frequent appearances
-        const catIntervalMin = 5;
-        const catIntervalMax = 20;
-        let nextCatInteraction = Math.floor(Math.random() * (catIntervalMax - catIntervalMin + 1)) + catIntervalMin;
-        
-        // This function handles the new diagonal animation
-        const showCat = () => {
-            const catIndex = Math.floor(Math.random() * catImages.length);
-            const slideFromBottomRight = Math.random() < 0.5;
-
-            catImageElement.src = catImages[catIndex];
-            
-            // Set initial position and remove any previous animation classes
-            catContainer.classList.remove('is-diagonal-bottom-left', 'is-diagonal-bottom-right');
-            catContainer.style.animation = 'none'; // Temporarily disable animation
-            void catContainer.offsetWidth; // Trigger reflow to apply 'none'
-            
-            // Apply the new animation
-            catContainer.classList.add(slideFromBottomRight ? 'is-diagonal-bottom-right' : 'is-diagonal-bottom-left');
-            catContainer.style.animation = null; // Re-enable animation
-        };
-        
-        const handleInteraction = () => {
-            interactionCount++;
-            if (interactionCount >= nextCatInteraction) {
-                showCat();
-                // Reset the interaction counter and set the next random interval
-                interactionCount = 0;
-                nextCatInteraction = Math.floor(Math.random() * (catIntervalMax - catIntervalMin + 1)) + catIntervalMin;
+            // Make canvas responsive
+            function resizeCanvas() {
+                canvas.width = canvas.parentElement.clientWidth;
+                canvas.height = canvas.parentElement.clientHeight;
             }
-        };
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
 
-        // Function to populate checkbox filters with pre-selected options
-        const populateCheckboxes = (container, options, name, defaultSelected = []) => {
-            container.innerHTML = '';
-            options.forEach(option => {
-                const checkboxContainer = document.createElement('label');
-                checkboxContainer.className = "flex items-center space-x-2 cursor-pointer";
-                const isChecked = defaultSelected.includes(option);
-                checkboxContainer.innerHTML = `
-                    <input type="checkbox" name="${name}" value="${option}" class="rounded text-purple-600 focus:ring-purple-500" ${isChecked ? 'checked' : ''}>
-                    <span class="text-gray-700">${option}</span>
-                `;
-                container.appendChild(checkboxContainer);
-            });
-        };
+            const img = new Image();
+            img.src = 'image_d88d22.png'; // Using the user's uploaded image name
 
-        // Function to update the filter summary display
-        const updateFilterSummary = () => {
-            const summaryParts = [];
-            
-            const year = yearFilter.value;
-            if (year) {
-                summaryParts.push(`Year: ${year}`);
-            }
+            // Animation states
+            const STATE_FLY_IN = 0;
+            const STATE_PAUSE = 1;
+            const STATE_FLY_OUT = 2;
 
-            const department = departmentFilter.value;
-            if (department) {
-                summaryParts.push(`Department: ${department}`);
-            }
+            let currentState = STATE_FLY_IN;
+            let x, y;
+            let initialSpeed = 2;
+            let speed = initialSpeed;
+            const rotationAngle = 3 * (Math.PI / 180); // 3 degrees in radians
+            let pauseStartTime;
 
-            const selectedDays = Array.from(document.querySelectorAll('#day-filter input[name="day"]:checked')).map(cb => cb.value);
-            if (selectedDays.length > 0 && !selectedDays.includes('All')) {
-                summaryParts.push(`Day: ${selectedDays.join(', ')}`);
-            }
+            img.onload = () => {
+                // Initial position off-screen, bottom-left
+                x = -img.width;
+                y = canvas.height + img.height;
 
-            const selectedWhen = Array.from(document.querySelectorAll('#when-filter input[name="when"]:checked')).map(cb => cb.value);
-            if (selectedWhen.length > 0 && !selectedWhen.includes('All')) {
-                summaryParts.push(`When: ${selectedWhen.join(', ')}`);
-            }
-            
-            const selectedClubNames = Array.from(document.querySelectorAll('#club-name-filter input[name="club-name"]:checked')).map(cb => cb.value);
-            if (selectedClubNames.length > 0) {
-                summaryParts.push(`Club: ${selectedClubNames.join(', ')}`);
-            }
+                function animate() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            if (summaryParts.length > 0) {
-                activeFiltersSummary.textContent = summaryParts.join(' | ');
-            } else {
-                activeFiltersSummary.textContent = 'All clubs shown';
-            }
-        };
+                    switch (currentState) {
+                        case STATE_FLY_IN:
+                            // Move along a 45-degree path (up and to the right)
+                            x += speed;
+                            y -= speed;
 
-        // Main filtering logic
-        const filterClubs = () => {
-            const year = yearFilter.value;
-            const department = departmentFilter.value;
-            const searchTerm = searchInput.value.toLowerCase();
-
-            // Get selected checkbox values
-            const selectedDays = Array.from(document.querySelectorAll('#day-filter input[name="day"]:checked')).map(cb => cb.value);
-            const selectedWhen = Array.from(document.querySelectorAll('#when-filter input[name="when"]:checked')).map(cb => cb.value);
-            const selectedClubNames = Array.from(document.querySelectorAll('#club-name-filter input[name="club-name"]:checked')).map(cb => cb.value);
-
-            const filtered = clubsData.filter(club => {
-                const matchesSearch = (club.name && club.name.toLowerCase().includes(searchTerm)) || (club.department && club.department.toLowerCase().includes(searchTerm));
-                
-                // FIXED: This logic now correctly checks for the selected year OR 'All Years'
-                const matchesYear = !year || club.year.includes('All Years') || club.year.some(y => y.trim() === year);
-
-                // Checkbox filter logic - If 'All' is selected, it matches all. Otherwise, it checks for specific matches.
-                const matchesDay = selectedDays.includes('All') || selectedDays.length === 0 || selectedDays.includes(club.day);
-                const matchesWhen = selectedWhen.includes('All') || selectedWhen.length === 0 || selectedWhen.includes(club.when);
-                const matchesDepartment = !department || club.department === department;
-                const matchesClubName = selectedClubNames.length === 0 || selectedClubNames.includes(club.name);
-                
-                return matchesSearch && matchesYear && matchesDay && matchesWhen && matchesDepartment && matchesClubName;
-            });
-            renderClubs(filtered);
-            updateFilterSummary(); // Update the summary after filtering
-        };
-
-        // Function to render club cards
-        const renderClubs = (clubs) => {
-            clubsList.innerHTML = '';
-            if (clubs.length === 0) {
-                noResultsMessage.classList.remove('hidden');
-                return;
-            }
-            noResultsMessage.classList.add('hidden');
-
-            clubs.forEach(club => {
-                const card = document.createElement('div');
-                card.className = "bg-white p-6 rounded-xl shadow-md border border-gray-200 transition-all duration-300 hover:shadow-lg";
-                card.innerHTML = `
-                    <h3 class="text-xl font-bold text-gray-800 mb-2">${club.name}</h3>
-                    <div class="flex flex-wrap items-center gap-x-4 text-sm text-gray-600 mb-2">
-                        <div>Day: <span class="font-semibold">${club.day}</span></div>
-                        <div>When: <span class="font-semibold">${club.when}</span></div>
-                        <div>Year Group(s): <span class="font-semibold">${club.year.join(', ')}</span></div>
-                        <div>Department: <span class="font-semibold">${club.department}</span></div>
-                    </div>
-                    <p class="text-sm text-gray-400 mt-2 border-t pt-2 border-gray-100">
-                        Where: <span class="font-semibold text-gray-700">${club.location}</span>, Who: <span class="font-semibold text-gray-700">${club.staff}</span>, Week: <span class="font-semibold text-gray-700">${club.weeks}</span>, Time: <span class="font-semibold text-gray-700">${club.time}</span>
-                    </p>
-                `;
-                clubsList.appendChild(card);
-            });
-        };
-
-        // This function fetches the CSV, parses it, and then renders the clubs
-        const fetchAndRenderClubs = async () => {
-            const loadingMessage = document.getElementById('loading-message');
-            loadingMessage.classList.remove('hidden');
-
-            try {
-                const response = await fetch('clubs.csv');
-                const text = await response.text();
-                
-                // Robust CSV parsing to handle commas inside quoted strings
-                const rows = text.trim().split('\n').slice(1); // Skip header row
-                clubsData = rows.map(row => {
-                    const cols = row.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(c => c.trim().replace(/^"|"$/g, ''));
-                    // Mapping columns to the object structure
-                    return {
-                        name: cols[0] || null,
-                        when: cols[1] || null,
-                        day: cols[2] || null,
-                        weeks: cols[3] || null,
-                        time: cols[4] || null,
-                        // FIX: Use a regex to split by comma, ampersand, or space
-                        year: (() => {
-                            const yearGroupString = cols[5] || '';
-                            if (yearGroupString.includes('All Years')) {
-                                return ['All Years'];
+                            // Check if it's close to the center
+                            if (x > canvas.width / 2 && y < canvas.height / 2) {
+                                currentState = STATE_PAUSE;
+                                pauseStartTime = Date.now();
                             }
-                            return yearGroupString.split(/[,\s&]+/).map(y => y.trim()).filter(Boolean);
-                        })() || [],
-                        location: cols[6] || null,
-                        staff: cols[7] || null,
-                        department: cols[8] || null
-                    };
-                }).filter(club => club.name); // Filter out rows with no club name
+                            break;
 
-                // Collect unique values for filters
-                const uniqueDays = ['All', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-                const uniqueTimes = ['All', 'Before School', 'Lunchtime', 'After School'];
-                const uniqueClubNames = [...new Set(clubsData.map(c => c.name))].filter(Boolean).sort();
+                        case STATE_PAUSE:
+                            // Stay still, wait for 1.5 seconds
+                            if (Date.now() - pauseStartTime > 1500) {
+                                currentState = STATE_FLY_OUT;
+                                // Reset speed for the return trip
+                                speed = initialSpeed * 3;
+                            }
+                            break;
 
-                // Populate filter dropdowns
-                populateCheckboxes(document.getElementById('day-filter'), uniqueDays, 'day', ['All']);
-                populateCheckboxes(document.getElementById('when-filter'), uniqueTimes, 'when', ['All']);
-                populateCheckboxes(document.getElementById('club-name-filter'), uniqueClubNames, 'club-name');
+                        case STATE_FLY_OUT:
+                            // Move back out three times as fast
+                            x += speed;
+                            y -= speed;
 
-                loadingMessage.classList.add('hidden');
-                filterClubs();
-            } catch (error) {
-                console.error("Error fetching or parsing CSV:", error);
-                loadingMessage.innerHTML = `<p class="mt-4 text-xl font-medium text-red-500">Failed to load data. Please check the file.</p>`;
-            }
-        };
-
-        // Event Listeners
-        filterBtn.addEventListener('click', () => {
-            filterPanel.classList.add('is-active');
-            filterOverlay.classList.remove('hidden'); // Show overlay
-            handleInteraction();
-        });
-        closeFilterBtn.addEventListener('click', () => {
-            filterPanel.classList.remove('is-active');
-            filterOverlay.classList.add('hidden'); // Hide overlay
-            handleInteraction();
-        });
-        filterOverlay.addEventListener('click', () => {
-            filterPanel.classList.remove('is-active');
-            filterOverlay.classList.add('hidden'); // Hide overlay
-            handleInteraction();
-        });
-
-        // Individual Clear Buttons
-        clearYearBtn.addEventListener('click', () => {
-            yearFilter.value = '';
-            filterClubs();
-            handleInteraction();
-        });
-
-        clearDayBtn.addEventListener('click', () => {
-            document.querySelectorAll('#day-filter input').forEach(checkbox => {
-                checkbox.checked = checkbox.value === 'All';
-            });
-            filterClubs();
-            handleInteraction();
-        });
-
-        clearWhenBtn.addEventListener('click', () => {
-            document.querySelectorAll('#when-filter input').forEach(checkbox => {
-                checkbox.checked = checkbox.value === 'All';
-            });
-            filterClubs();
-            handleInteraction();
-        });
-
-        clearDepartmentBtn.addEventListener('click', () => {
-            departmentFilter.value = '';
-            filterClubs();
-            handleInteraction();
-        });
-
-        clearClubNameBtn.addEventListener('click', () => {
-            document.querySelectorAll('#club-name-filter input').forEach(checkbox => {
-                checkbox.checked = false;
-            });
-            filterClubs();
-            handleInteraction();
-        });
-
-        // Main filter events
-        searchInput.addEventListener('input', () => {
-            filterClubs();
-            handleInteraction();
-        });
-        yearFilter.addEventListener('change', () => {
-            filterClubs();
-            handleInteraction();
-        });
-        departmentFilter.addEventListener('change', () => {
-            filterClubs();
-            handleInteraction();
-        });
-        
-        // Listen for changes on all checkbox filters
-        document.querySelectorAll('#day-filter, #when-filter, #club-name-filter').forEach(container => {
-            container.addEventListener('change', (event) => {
-                if (event.target.value === 'All' && event.target.checked) {
-                    container.querySelectorAll('input').forEach(cb => {
-                        if (cb.value !== 'All') cb.checked = false;
-                    });
-                } else if (event.target.value !== 'All' && event.target.checked) {
-                    const allCheckbox = container.querySelector('input[value="All"]');
-                    if (allCheckbox) {
-                        allCheckbox.checked = false;
+                            // Check if it's off-screen again to reset
+                            if (x > canvas.width + img.width || y < -img.height) {
+                                currentState = STATE_FLY_IN;
+                                speed = initialSpeed; // Reset speed for next cycle
+                                // Reset position
+                                x = -img.width;
+                                y = canvas.height + img.height;
+                            }
+                            break;
                     }
+
+                    // Save the current state of the canvas
+                    ctx.save();
+                    
+                    // Move the canvas origin to the image's center
+                    ctx.translate(x + img.width / 2, y + img.height / 2);
+
+                    // Rotate the canvas. The 45-degree path is a rotation of -45 degrees,
+                    // so we rotate an additional 3 degrees to point away from the direction of travel.
+                    // (3 * Math.PI / 180) is the 3-degree rotation.
+                    ctx.rotate(-Math.PI / 4 + rotationAngle);
+
+                    // Draw the image centered at the new origin
+                    ctx.drawImage(img, -img.width / 2, -img.height / 2, img.width, img.height);
+                    
+                    // Restore the canvas to its original state
+                    ctx.restore();
+
+                    requestAnimationFrame(animate);
                 }
-                filterClubs();
-                handleInteraction();
-            });
-        });
+                animate();
+            };
 
-        clearFiltersBtn.addEventListener('click', () => {
-            searchInput.value = '';
-            yearFilter.value = '';
-            departmentFilter.value = '';
-            // Uncheck all checkboxes except 'All' for applicable filters
-            document.querySelectorAll('#day-filter input, #when-filter input').forEach(checkbox => {
-                checkbox.checked = checkbox.value === 'All';
-            });
-            // Clear all club name checkboxes
-            document.querySelectorAll('#club-name-filter input').forEach(checkbox => {
-                checkbox.checked = false;
-            });
-            filterClubs(); // Re-render with all filters cleared
-            handleInteraction();
-        });
-
-        // Initial render
-        document.addEventListener('DOMContentLoaded', fetchAndRenderClubs);
-
-        // Periodically trigger an interaction to ensure the cat appears,
-        // even if the user isn't actively interacting.
-        // The interval is set high to make it a rare, intermittent event.
-        setInterval(handleInteraction, 10000);
+            // Fallback for image loading error
+            img.onerror = () => {
+                ctx.fillStyle = 'red';
+                ctx.font = '20px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('Error loading image', canvas.width / 2, canvas.height / 2);
+            };
+        };
     </script>
-
 </body>
 </html>
+
 
 
