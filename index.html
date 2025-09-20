@@ -57,7 +57,7 @@
         </div>
         
         <!-- Filter Overlay (Hidden by default) -->
-        <div id="filter-overlay" class="fixed inset-0 z-40 bg-black bg-opacity-50 backdrop-blur-sm backdrop is-active"></div>
+        <div id="filter-overlay" class="fixed inset-0 z-40 bg-black bg-opacity-50 backdrop-blur-sm backdrop hidden"></div>
         
         <div id="filter-panel" class="fixed right-0 top-0 h-full w-full max-w-sm bg-white shadow-xl z-50 p-6 flex flex-col filter-panel">
             <div class="flex items-center justify-between mb-6">
@@ -70,30 +70,64 @@
             </div>
             
             <!-- Filter Dropdowns -->
-            <div class="space-y-4 mb-8">
+            <div class="space-y-6 mb-8 overflow-y-auto">
                 <div>
                     <label for="year-filter" class="block text-gray-700 font-medium mb-1">Year Group</label>
                     <select id="year-filter" class="w-full p-3 rounded-xl border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors">
                         <option value="all">All</option>
+                        <option value="7">Year 7</option>
+                        <option value="8">Year 8</option>
+                        <option value="9">Year 9</option>
+                        <option value="10">Year 10</option>
+                        <option value="11">Year 11</option>
+                        <option value="12">Year 12</option>
+                        <option value="13">Year 13</option>
                     </select>
                 </div>
+                
+                <!-- Multi-select for Day -->
                 <div>
-                    <label for="day-filter" class="block text-gray-700 font-medium mb-1">Day</label>
-                    <select id="day-filter" class="w-full p-3 rounded-xl border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors">
-                        <option value="all">All</option>
-                    </select>
+                    <label class="block text-gray-700 font-medium mb-2">Day</label>
+                    <div id="day-filter" class="bg-gray-50 rounded-xl p-4 space-y-2 border border-gray-200">
+                        <!-- Checkboxes will be dynamically inserted here -->
+                    </div>
                 </div>
+
+                <!-- Multi-select for When -->
                 <div>
-                    <label for="time-filter" class="block text-gray-700 font-medium mb-1">Time</label>
-                    <select id="time-filter" class="w-full p-3 rounded-xl border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors">
-                        <option value="all">All</option>
-                    </select>
+                    <label class="block text-gray-700 font-medium mb-2">When</label>
+                    <div id="when-filter" class="bg-gray-50 rounded-xl p-4 space-y-2 border border-gray-200">
+                        <!-- Checkboxes will be dynamically inserted here -->
+                    </div>
                 </div>
+
+                <!-- Dropdown for Department -->
                 <div>
                     <label for="department-filter" class="block text-gray-700 font-medium mb-1">Department</label>
                     <select id="department-filter" class="w-full p-3 rounded-xl border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors">
                         <option value="all">All</option>
+                        <option value="ART">ART</option>
+                        <option value="CS">CS</option>
+                        <option value="Drama">Drama</option>
+                        <option value="DT">DT</option>
+                        <option value="English">English</option>
+                        <option value="Maths">Maths</option>
+                        <option value="Music">Music</option>
+                        <option value="Other">Other</option>
+                        <option value="Pastoral">Pastoral</option>
+                        <option value="PE">PE</option>
+                        <option value="RS">RS</option>
+                        <option value="Science">Science</option>
+                        <option value="SEN">SEN</option>
                     </select>
+                </div>
+                
+                <!-- Multi-select for Club Name -->
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">Club Name</label>
+                    <div id="club-name-filter" class="bg-gray-50 rounded-xl p-4 space-y-2 border border-gray-200 max-h-64 overflow-y-auto">
+                        <!-- Checkboxes will be dynamically inserted here -->
+                    </div>
                 </div>
             </div>
             
@@ -154,17 +188,15 @@
                 }).filter(club => club.name); // Filter out rows with no club name
 
                 // Collect unique values for filters
-                const uniqueYears = [...new Set(clubsData.flatMap(c => c.year))].filter(Boolean).sort();
-                const uniqueDays = [...new Set(clubsData.map(c => c.day))].filter(Boolean).sort();
-                const uniqueTimes = [...new Set(clubsData.map(c => c.time))].filter(Boolean).sort();
-                const uniqueDepartments = [...new Set(clubsData.map(c => c.department))].filter(Boolean).sort();
+                const uniqueDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+                const uniqueTimes = ['Before School', 'Lunchtime', 'After School'];
+                const uniqueClubNames = [...new Set(clubsData.map(c => c.name))].filter(Boolean).sort();
 
                 // Populate filter dropdowns
-                populateDropdown(document.getElementById('year-filter'), uniqueYears);
-                populateDropdown(document.getElementById('day-filter'), uniqueDays);
-                populateDropdown(document.getElementById('time-filter'), uniqueTimes);
-                populateDropdown(document.getElementById('department-filter'), uniqueDepartments);
-                
+                populateCheckboxes(document.getElementById('day-filter'), uniqueDays, 'day');
+                populateCheckboxes(document.getElementById('when-filter'), uniqueTimes, 'when');
+                populateCheckboxes(document.getElementById('club-name-filter'), uniqueClubNames, 'club-name');
+
                 loadingMessage.classList.add('hidden');
                 filterClubs();
             } catch (error) {
@@ -182,61 +214,47 @@
         const filterOverlay = document.getElementById('filter-overlay');
         const searchInput = document.getElementById('search-input');
         const yearFilter = document.getElementById('year-filter');
-        const dayFilter = document.getElementById('day-filter');
-        const timeFilter = document.getElementById('time-filter');
         const departmentFilter = document.getElementById('department-filter');
         const clearFiltersBtn = document.getElementById('clear-filters-btn');
 
-        // Function to populate filter dropdowns
-        const populateDropdown = (dropdown, options) => {
+        // Function to populate checkbox filters
+        const populateCheckboxes = (container, options, name) => {
+            container.innerHTML = '';
             options.forEach(option => {
-                const opt = document.createElement('option');
-                opt.value = option;
-                opt.textContent = option;
-                dropdown.appendChild(opt);
+                const checkboxContainer = document.createElement('label');
+                checkboxContainer.className = "flex items-center space-x-2 cursor-pointer";
+                checkboxContainer.innerHTML = `
+                    <input type="checkbox" name="${name}" value="${option}" class="rounded text-purple-600 focus:ring-purple-500">
+                    <span class="text-gray-700">${option}</span>
+                `;
+                container.appendChild(checkboxContainer);
             });
-        };
-
-        // Function to render club cards
-        const renderClubs = (filteredClubs) => {
-            clubsList.innerHTML = '';
-            if (filteredClubs.length === 0) {
-                noResultsMessage.classList.remove('hidden');
-            } else {
-                noResultsMessage.classList.add('hidden');
-                filteredClubs.forEach(club => {
-                    const clubCard = document.createElement('div');
-                    clubCard.className = "bg-white p-6 rounded-xl shadow-lg border-t-4 border-purple-500 transition-transform duration-200 transform hover:scale-105";
-                    clubCard.innerHTML = `
-                        <h3 class="text-xl font-bold text-gray-900 mb-2">${club.name}</h3>
-                        <p class="text-sm text-gray-600 mb-1"><span class="font-medium text-gray-700">Year Group(s):</span> ${club.year.join(', ') || 'N/A'}</p>
-                        <p class="text-sm text-gray-600 mb-1"><span class="font-medium text-gray-700">Day:</span> ${club.day || 'N/A'}</p>
-                        <p class="text-sm text-gray-600 mb-1"><span class="font-medium text-gray-700">Time:</span> ${club.time || 'N/A'}</p>
-                        <p class="text-sm text-gray-600 mb-1"><span class="font-medium text-gray-700">Department:</span> ${club.department || 'N/A'}</p>
-                        <p class="text-sm text-gray-600 mb-1"><span class="font-medium text-gray-700">Location:</span> ${club.location || 'N/A'}</p>
-                        <p class="text-sm text-gray-600"><span class="font-medium text-gray-700">Staff:</span> ${club.staff || 'N/A'}</p>
-                    `;
-                    clubsList.appendChild(clubCard);
-                });
-            }
         };
 
         // Main filtering logic
         const filterClubs = () => {
             const year = yearFilter.value;
-            const day = dayFilter.value;
-            const time = timeFilter.value;
             const department = departmentFilter.value;
             const searchTerm = searchInput.value.toLowerCase();
 
+            // Get selected checkbox values
+            const selectedDays = Array.from(document.querySelectorAll('#day-filter input[name="day"]:checked')).map(cb => cb.value);
+            const selectedWhen = Array.from(document.querySelectorAll('#when-filter input[name="when"]:checked')).map(cb => cb.value);
+            const selectedClubNames = Array.from(document.querySelectorAll('#club-name-filter input[name="club-name"]:checked')).map(cb => cb.value);
+
             const filtered = clubsData.filter(club => {
                 const matchesSearch = (club.name && club.name.toLowerCase().includes(searchTerm)) || (club.department && club.department.toLowerCase().includes(searchTerm));
-                const matchesYear = year === 'all' || club.year.some(y => y.toLowerCase() === year.toLowerCase());
-                const matchesDay = day === 'all' || club.day === day;
-                const matchesTime = time === 'all' || club.time === time;
-                const matchesDepartment = department === 'all' || club.department === department;
                 
-                return matchesSearch && matchesYear && matchesDay && matchesTime && matchesDepartment;
+                // Year filter logic: includes "All Years" clubs if a specific year is selected.
+                const matchesYear = year === 'all' || club.year.includes('All Years') || club.year.some(y => y === year);
+
+                // Checkbox filter logic
+                const matchesDay = selectedDays.length === 0 || selectedDays.includes(club.day);
+                const matchesWhen = selectedWhen.length === 0 || selectedWhen.includes(club.when);
+                const matchesDepartment = department === 'all' || club.department === department;
+                const matchesClubName = selectedClubNames.length === 0 || selectedClubNames.includes(club.name);
+                
+                return matchesSearch && matchesYear && matchesDay && matchesWhen && matchesDepartment && matchesClubName;
             });
             renderClubs(filtered);
         };
@@ -244,29 +262,34 @@
         // Event Listeners
         filterBtn.addEventListener('click', () => {
             filterPanel.classList.add('is-active');
-            filterOverlay.classList.add('is-active');
+            filterOverlay.classList.remove('hidden'); // Show overlay
         });
         closeFilterBtn.addEventListener('click', () => {
             filterPanel.classList.remove('is-active');
-            filterOverlay.classList.remove('is-active');
+            filterOverlay.classList.add('hidden'); // Hide overlay
         });
         filterOverlay.addEventListener('click', () => {
             filterPanel.classList.remove('is-active');
-            filterOverlay.classList.remove('is-active');
+            filterOverlay.classList.add('hidden'); // Hide overlay
         });
 
         searchInput.addEventListener('input', filterClubs);
         yearFilter.addEventListener('change', filterClubs);
-        dayFilter.addEventListener('change', filterClubs);
-        timeFilter.addEventListener('change', filterClubs);
         departmentFilter.addEventListener('change', filterClubs);
+        
+        // Listen for changes on all checkbox filters
+        document.querySelectorAll('#day-filter, #when-filter, #club-name-filter').forEach(container => {
+            container.addEventListener('change', filterClubs);
+        });
 
         clearFiltersBtn.addEventListener('click', () => {
             searchInput.value = '';
             yearFilter.value = 'all';
-            dayFilter.value = 'all';
-            timeFilter.value = 'all';
             departmentFilter.value = 'all';
+            // Uncheck all checkboxes
+            document.querySelectorAll('#day-filter input, #when-filter input, #club-name-filter input').forEach(checkbox => {
+                checkbox.checked = false;
+            });
             filterClubs(); // Re-render with all filters cleared
         });
 
@@ -276,4 +299,5 @@
 
 </body>
 </html>
+
 
