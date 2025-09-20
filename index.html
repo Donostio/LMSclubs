@@ -35,35 +35,60 @@
             pointer-events: auto;
         }
         
+        /* New custom CSS animations for the cat cameos */
+        @keyframes slideInFromBottomLeft {
+            0% {
+                transform: translate(-150vw, 150vh) rotate(-45deg);
+                opacity: 0;
+            }
+            100% {
+                transform: translate(20vw, -10vh) rotate(-45deg);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInFromBottomRight {
+            0% {
+                transform: translate(150vw, 150vh) rotate(45deg);
+                opacity: 0;
+            }
+            100% {
+                transform: translate(-20vw, -10vh) rotate(45deg);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            0% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+        
         /* Main container for the cat animations */
         .cat-container {
             position: fixed;
             z-index: 100;
             pointer-events: none;
-            will-change: transform;
+            will-change: transform, opacity;
         }
-        
-        /* Standard animation: slides from left/right */
-        .cat-container.is-normal {
-            top: 50%;
-            transform: translateY(-50%) translateX(-100vw);
-            transition: transform 0.5s ease-in-out;
+
+        /* Specific animation classes */
+        .cat-container.is-diagonal-bottom-left {
+            animation: slideInFromBottomLeft 2s forwards, slideOut 0.5s 2s forwards;
         }
-        .cat-container.is-normal.from-right {
-            transform: translateY(-50%) translateX(100vw);
-        }
-        .cat-container.is-normal.is-active.from-left {
-            transform: translateY(-50%) translateX(0);
-        }
-        .cat-container.is-normal.is-active.from-right {
-            transform: translateY(-50%) translateX(calc(-100% + 100vw));
+        .cat-container.is-diagonal-bottom-right {
+            animation: slideInFromBottomRight 2s forwards, slideOut 0.5s 2s forwards;
         }
 
         .cat-container img {
             width: 150px;
             height: auto;
             border-radius: 0.75rem;
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            transform: scale(2.5); /* Image is 2.5 times larger */
+            filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.3)); /* Use drop-shadow for transparent images */
         }
     </style>
 </head>
@@ -254,41 +279,30 @@
         const catWrapper = document.getElementById('cat-wrapper');
         let interactionCount = 0;
         
-        const catIntervalMin = 1;
-        const catIntervalMax = 5;
+        // Drastically increased interval for less frequent appearances
+        const catIntervalMin = 5;
+        const catIntervalMax = 20;
         let nextCatInteraction = Math.floor(Math.random() * (catIntervalMax - catIntervalMin + 1)) + catIntervalMin;
-
+        
+        // This function handles the new diagonal animation
         const showCat = () => {
-            console.log("showCat() is being called. A cat should be appearing!");
-            // Randomly choose a cat and a slide direction
             const catIndex = Math.floor(Math.random() * catImages.length);
-            const slideFromRight = Math.random() < 0.5;
+            const slideFromBottomRight = Math.random() < 0.5;
 
             catImageElement.src = catImages[catIndex];
             
-            // Apply standard cat animation classes and styles
-            catContainer.classList.add('is-normal');
-            catWrapper.style.overflow = 'visible';
-            catContainer.style.transitionDuration = '0.5s';
+            // Set initial position and remove any previous animation classes
+            catContainer.classList.remove('is-diagonal-bottom-left', 'is-diagonal-bottom-right');
+            catContainer.style.animation = 'none'; // Temporarily disable animation
+            void catContainer.offsetWidth; // Trigger reflow to apply 'none'
             
-            // Update classes for animation
-            catContainer.classList.remove('from-left', 'from-right');
-            catContainer.classList.add(slideFromRight ? 'from-right' : 'from-left');
-            
-            // Slide in
-            setTimeout(() => {
-                catContainer.classList.add('is-active');
-            }, 50);
-
-            // Slide out after 2 seconds
-            setTimeout(() => {
-                catContainer.classList.remove('is-active');
-            }, 2000);
+            // Apply the new animation
+            catContainer.classList.add(slideFromBottomRight ? 'is-diagonal-bottom-right' : 'is-diagonal-bottom-left');
+            catContainer.style.animation = null; // Re-enable animation
         };
         
         const handleInteraction = () => {
             interactionCount++;
-            console.log(`Interaction detected. Current count: ${interactionCount}. Next cat at: ${nextCatInteraction}`);
             if (interactionCount >= nextCatInteraction) {
                 showCat();
                 // Reset the interaction counter and set the next random interval
@@ -564,9 +578,11 @@
 
         // Periodically trigger an interaction to ensure the cat appears,
         // even if the user isn't actively interacting.
-        setInterval(handleInteraction, 3000);
+        // The interval is set high to make it a rare, intermittent event.
+        setInterval(handleInteraction, 10000);
     </script>
 
 </body>
 </html>
+
 
