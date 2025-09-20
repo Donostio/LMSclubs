@@ -14,9 +14,9 @@
         body {
             font-family: 'Inter', sans-serif;
             -webkit-tap-highlight-color: transparent; /* Removes highlight on tap */
-            /* User requested black background with red vertical stripes, twice as close together as the uploaded image. */
+            /* User requested mostly black background by removing every 2nd and 3rd red strip. */
             background-color: #000;
-            background-image: repeating-linear-gradient(to right, #ef4444, #ef4444 2px, #000 2px, #000 4px);
+            background-image: repeating-linear-gradient(to right, #ef4444, #ef4444 2px, #000 2px, #000 8px);
         }
         .filter-panel {
             transition: transform 0.3s ease-in-out;
@@ -294,10 +294,12 @@
                 card.className = "bg-white p-6 rounded-xl shadow-md border border-gray-200 transition-all duration-300 hover:shadow-lg";
                 card.innerHTML = `
                     <h3 class="text-xl font-bold text-gray-800 mb-2">${club.name}</h3>
-                    <p class="text-gray-600"><strong>Day:</strong> ${club.day}</p>
-                    <p class="text-gray-600"><strong>When:</strong> ${club.when}</p>
-                    <p class="text-gray-600"><strong>Year Group(s):</strong> ${club.year.join(', ')}</p>
-                    <p class="text-gray-600"><strong>Department:</strong> ${club.department}</p>
+                    <div class="flex flex-wrap items-center gap-x-4 text-sm text-gray-600 mb-2">
+                        <div>Day: <span class="font-semibold">${club.day}</span></div>
+                        <div>When: <span class="font-semibold">${club.when}</span></div>
+                        <div>Year Group(s): <span class="font-semibold">${club.year.join(', ')}</span></div>
+                        <div>Department: <span class="font-semibold">${club.department}</span></div>
+                    </div>
                     <p class="text-sm text-gray-400 mt-2 border-t pt-2 border-gray-100">
                         Where: <span class="font-semibold text-gray-700">${club.location}</span>, Who: <span class="font-semibold text-gray-700">${club.staff}</span>, Week: <span class="font-semibold text-gray-700">${club.weeks}</span>, Time: <span class="font-semibold text-gray-700">${club.time}</span>
                     </p>
@@ -445,6 +447,7 @@
 
 </body>
 </html>
+
 
 
 
