@@ -13,8 +13,10 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
             -webkit-tap-highlight-color: transparent; /* Removes highlight on tap */
+            /* User requested black background with red vertical stripes, twice as close together as the uploaded image. */
+            background-color: #000;
+            background-image: repeating-linear-gradient(to right, #ef4444, #ef4444 2px, #000 2px, #000 4px);
         }
         .filter-panel {
             transition: transform 0.3s ease-in-out;
@@ -297,7 +299,7 @@
                     <p class="text-gray-600"><strong>Year Group(s):</strong> ${club.year.join(', ')}</p>
                     <p class="text-gray-600"><strong>Department:</strong> ${club.department}</p>
                     <p class="text-sm text-gray-400 mt-2 border-t pt-2 border-gray-100">
-                        Where: ${club.location}, Who: ${club.staff}, Week: ${club.weeks}, Time: ${club.time}
+                        Where: <span class="font-semibold text-gray-700">${club.location}</span>, Who: <span class="font-semibold text-gray-700">${club.staff}</span>, Week: <span class="font-semibold text-gray-700">${club.weeks}</span>, Time: <span class="font-semibold text-gray-700">${club.time}</span>
                     </p>
                 `;
                 clubsList.appendChild(card);
@@ -443,6 +445,7 @@
 
 </body>
 </html>
+
 
 
 
