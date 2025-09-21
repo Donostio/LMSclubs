@@ -84,14 +84,14 @@
         .cat-container.ascending-cat {
             bottom: 0;
             left: 50%;
-            transform: translateX(-50%) translateY(100%); /* Off-screen bottom */
-            transition: transform 3s ease-out; /* Slower initial slide up */
+            transform: translateX(-50%) translateY(100%);
+            transition: transform 3s ease-out;
         }
         .cat-container.ascending-cat.is-active {
-            transform: translateX(-50%) translateY(-66.6666%); /* Up to two-thirds of the screen height */
+            transform: translateX(-50%) translateY(-66.6666%);
         }
         .cat-container.ascending-cat.slide-down {
-            transition: transform 0.5s ease-in; /* Rapid slide back down */
+            transition: transform 0.5s ease-in;
             transform: translateX(-50%) translateY(100%);
         }
         
@@ -285,7 +285,6 @@
 
             // Clear previous animation classes and styles
             catContainer.classList.remove('is-active', 'from-top', 'from-right', 'from-bottom', 'from-left', 'ascending-cat', 'slide-down');
-            catContainer.style.transition = 'transform 0.5s ease-in-out';
             catImageElement.style.transform = 'scale(1)';
 
             const animations = ['from-top', 'from-right', 'from-bottom', 'from-left', 'ascending-cat'];
@@ -618,7 +617,6 @@
 
             // Clear previous animation classes and styles
             catContainer.classList.remove('is-active', 'from-top', 'from-right', 'from-bottom', 'from-left', 'ascending-cat', 'slide-down');
-            catContainer.style.transition = 'transform 0.5s ease-in-out';
             catImageElement.style.transform = 'scale(1)';
 
             catContainer.classList.add('ascending-cat');
