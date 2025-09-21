@@ -248,7 +248,7 @@
         </div>
         
         <div class="text-center text-xs text-gray-400 mt-8">
-            <p>This site is maintained by LMS class reps 🌹</p> 
+            <p>This site is maintained by LMS class reps 💐</p> 
             <p>Your feedback helps us make the site better for everyone. <a href="https://forms.gle/5Gdrj6RPAEXf7jKy8" target="_blank" rel="noopener noreferrer" class="text-purple-600 hover:text-purple-800 transition-colors duration-200">Please share your thoughts here 💬</a><p>
         </div>
     </div>
@@ -626,27 +626,35 @@
             const catIndex = Math.floor(Math.random() * catImages.length);
             catImageElement.src = catImages[catIndex];
 
-            // Clear previous animation classes and styles
+            // Clear previous animation classes and styles - ensure clean slate
             catContainer.classList.remove('is-active', 'from-top', 'from-right', 'from-bottom', 'from-left', 'ascending-cat', 'slide-down');
-            catImageElement.style.transform = 'scale(1)';
+            catContainer.style.transform = '';
+            catImageElement.style.transform = '';
+            
+            // Force a reflow to ensure styles are applied
+            catContainer.offsetHeight;
 
+            // Set up the ascending cat with initial position and scale
             catContainer.classList.add('ascending-cat');
             catImageElement.style.transform = 'scale(3)'; // Scale up image
-
+            
+            // Start with cat completely off-screen (initial state is set by CSS)
             setTimeout(() => {
-                catContainer.classList.add('is-active');
+                catContainer.classList.add('is-active'); // This starts the slow slide up
 
                 setTimeout(() => {
                     catContainer.classList.remove('is-active');
                     catContainer.classList.add('slide-down');
 
                     setTimeout(() => {
+                        // Complete cleanup
                         catContainer.classList.remove('ascending-cat', 'slide-down');
-                        catImageElement.style.transform = 'scale(1)';
+                        catContainer.style.transform = '';
+                        catImageElement.style.transform = '';
                     }, 500);
                 }, 3500);
 
-            }, 50);
+            }, 100); // Slightly longer delay to ensure initial position is set
         };
 
         // Call the test function on page load
