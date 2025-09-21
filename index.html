@@ -249,7 +249,7 @@
         </div>
         
         <div class="text-center text-xs text-gray-400 mt-8">
-            <p>This site is maintained by LMS class reps 🎁</p> 
+            <p>This site is maintained by LMS class reps🚀</p> 
             <p>Your feedback helps us make the site better for everyone. <a href="https://forms.gle/5Gdrj6RPAEXf7jKy8" target="_blank" rel="noopener noreferrer" class="text-purple-600 hover:text-purple-800 transition-colors duration-200">Please share your thoughts here 💬</a><p>
         </div>
     </div>
@@ -549,4 +549,181 @@
 
         // Event Listeners
         filterBtn.addEventListener('click', () => {
-            filterPanel.
+            filterPanel.classList.add('is-active');
+            filterOverlay.classList.remove('hidden'); // Show overlay
+            handleInteraction();
+        });
+        closeFilterBtn.addEventListener('click', () => {
+            filterPanel.classList.remove('is-active');
+            filterOverlay.classList.add('hidden'); // Hide overlay
+            handleInteraction();
+        });
+        filterOverlay.addEventListener('click', () => {
+            filterPanel.classList.remove('is-active');
+            filterOverlay.classList.add('hidden'); // Hide overlay
+            handleInteraction();
+        });
+
+        // Individual Clear Buttons
+        clearYearBtn.addEventListener('click', () => {
+            yearFilter.value = '';
+            filterClubs();
+            handleInteraction();
+        });
+
+        clearDayBtn.addEventListener('click', () => {
+            document.querySelectorAll('#day-filter input').forEach(checkbox => {
+                checkbox.checked = checkbox.value === 'All';
+            });
+            filterClubs();
+            handleInteraction();
+        });
+
+        clearWhenBtn.addEventListener('click', () => {
+            document.querySelectorAll('#when-filter input').forEach(checkbox => {
+                checkbox.checked = checkbox.value === 'All';
+            });
+            filterClubs();
+            handleInteraction();
+        });
+
+        clearDepartmentBtn.addEventListener('click', () => {
+            departmentFilter.value = '';
+            filterClubs();
+            handleInteraction();
+        });
+
+        clearClubNameBtn.addEventListener('click', () => {
+            document.querySelectorAll('#club-name-filter input').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            filterClubs();
+            handleInteraction();
+        });
+
+        // Main filter events
+        searchInput.addEventListener('input', () => {
+            filterClubs();
+            handleInteraction();
+        });
+        yearFilter.addEventListener('change', () => {
+            filterClubs();
+            handleInteraction();
+        });
+        departmentFilter.addEventListener('change', () => {
+            filterClubs();
+            handleInteraction();
+        });
+        
+        // Listen for changes on all checkbox filters
+        document.querySelectorAll('#day-filter, #when-filter, #club-name-filter').forEach(container => {
+            container.addEventListener('change', (event) => {
+                if (event.target.value === 'All' && event.target.checked) {
+                    container.querySelectorAll('input').forEach(cb => {
+                        if (cb.value !== 'All') cb.checked = false;
+                    });
+                } else if (event.target.value !== 'All' && event.target.checked) {
+                    const allCheckbox = container.querySelector('input[value="All"]');
+                    if (allCheckbox) {
+                        allCheckbox.checked = false;
+                    }
+                }
+                filterClubs();
+                handleInteraction();
+            });
+        });
+
+        clearFiltersBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            yearFilter.value = '';
+            departmentFilter.value = '';
+            // Uncheck all checkboxes except 'All' for applicable filters
+            document.querySelectorAll('#day-filter input, #when-filter input').forEach(checkbox => {
+                checkbox.checked = checkbox.value === 'All';
+            });
+            // Clear all club name checkboxes
+            document.querySelectorAll('#club-name-filter input').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            filterClubs(); // Re-render with all filters cleared
+            handleInteraction();
+        });
+
+        // Initial render
+        document.addEventListener('DOMContentLoaded', fetchAndRenderClubs);
+
+        // Periodically trigger an interaction to ensure the cat appears,
+        // even if the user isn't actively interacting.
+        setInterval(handleInteraction, 3000);
+
+        // START OF TEMPORARY CODE FOR TESTING THE LARGE CAT ANIMATION
+        // REMEMBER TO REMOVE OR COMMENT THIS BLOCK OUT LATER
+        // This function bypasses the random selection to only show the ascending cat (un-has the three lines below to activate
+        const showAscendingCatForTesting = () => {
+            const catIndex = Math.floor(Math.random() * catImages.length);
+            const selectedCatImage = catImages[catIndex];
+            catImageElement.src = selectedCatImage;
+
+            // Complete reset - remove all classes and inline styles
+            catContainer.className = 'cat-container';
+            catContainer.style.cssText = '';
+            catImageElement.style.cssText = '';
+            
+            // Set up initial position using inline styles (bypassing CSS classes)
+            catContainer.style.position = 'fixed';
+            catContainer.style.bottom = '0';
+            catContainer.style.left = '50%';
+            catContainer.style.transform = 'translate(-50%, 100%)'; // Start completely off-screen
+            catContainer.style.zIndex = '100';
+            catContainer.style.pointerEvents = 'none';
+            catContainer.style.transition = 'none'; // No transition initially
+            catContainer.style.overflow = 'hidden'; // Prevent any spillover
+            
+            // Set up the scaled cat image properly
+            catImageElement.style.width = '450px'; // 150px * 3 = 450px for scale(3) effect
+            catImageElement.style.height = 'auto';
+            catImageElement.style.borderRadius = '0.75rem';
+            catImageElement.style.display = 'block';
+            
+            // Force reflow
+            catContainer.offsetHeight;
+
+            // Start the FAST slide up animation
+            setTimeout(() => {
+                catContainer.style.transition = 'transform 0.8s ease-out'; // Fast slide up (0.8s)
+                catContainer.style.transform = 'translate(-50%, 35%)'; // Stop at about 2/3 visible
+
+                // After slide up + pause, slide back down SLOWLY
+                setTimeout(() => {
+                    catContainer.style.transition = 'transform 3s ease-in'; // Slow slide down (3s)
+                    catContainer.style.transform = 'translate(-50%, 100%)'; // Slide back down off-screen
+
+                    // Clean up after slide down animation completes
+                    setTimeout(() => {
+                        // Complete invisibility - multiple approaches to ensure it's gone
+                        catContainer.style.display = 'none';
+                        catContainer.style.visibility = 'hidden';
+                        catContainer.style.opacity = '0';
+                        catContainer.style.zIndex = '-999';
+                        catContainer.style.transform = 'translate(-50%, 200vh)'; // Move way off screen
+                        
+                        // Final complete cleanup after ensuring invisibility
+                        setTimeout(() => {
+                            catContainer.className = 'cat-container';
+                            catContainer.style.cssText = '';
+                            catImageElement.style.cssText = '';
+                            catImageElement.src = ''; // Clear the image source
+                        }, 200);
+                    }, 3000); // Wait for 3s slow slide down to complete
+                }, 1300); // 0.8s slide up + 0.5s pause
+
+            }, 100);
+        };
+
+        // Call the test function on page load
+        // document.addEventListener('DOMContentLoaded', showAscendingCatForTesting);
+        // END OF TEMPORARY CODE
+    </script>
+
+</body>
+</html>
