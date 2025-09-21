@@ -95,14 +95,15 @@
   bottom: 0;
   left: 50%;
   transform: translate(-50%, 100%);
-  transition: transform 3s ease-out;
+  transition: none; /* No transition initially */
 }
 .cat-container.ascending-cat.is-active {
   transform: translate(-50%, -66.6666%);
+  transition: transform 3s ease-out; /* Transition only when sliding up */
 }
 .cat-container.ascending-cat.slide-down {
-  transition: transform 0.5s ease-in;
   transform: translate(-50%, 100%);
+  transition: transform 0.5s ease-in; /* Fast slide down */
 }
 
 /* Cat images */
@@ -248,7 +249,7 @@
         </div>
         
         <div class="text-center text-xs text-gray-400 mt-8">
-            <p>This site is maintained by LMS class reps 💐</p> 
+            <p>This site is maintained by LMS class reps 🌹</p> 
             <p>Your feedback helps us make the site better for everyone. <a href="https://forms.gle/5Gdrj6RPAEXf7jKy8" target="_blank" rel="noopener noreferrer" class="text-purple-600 hover:text-purple-800 transition-colors duration-200">Please share your thoughts here 💬</a><p>
         </div>
     </div>
@@ -296,7 +297,8 @@
 
             // Clear previous animation classes and styles
             catContainer.classList.remove('is-active', 'from-top', 'from-right', 'from-bottom', 'from-left', 'ascending-cat', 'slide-down');
-            catImageElement.style.transform = 'scale(1)';
+            catContainer.style.transform = '';
+            catImageElement.style.transform = '';
 
             const animations = ['from-top', 'from-right', 'from-bottom', 'from-left', 'ascending-cat'];
             const chosenAnimation = animations[Math.floor(Math.random() * animations.length)];
@@ -305,6 +307,9 @@
             if (chosenAnimation === 'ascending-cat') {
                 catContainer.classList.add('ascending-cat');
                 catImageElement.style.transform = 'scale(3)'; // Scale up image
+
+                // Force a reflow to ensure initial position is set
+                catContainer.offsetHeight;
 
                 // Use a single, reliable timeout chain for this specific animation
                 setTimeout(() => {
@@ -319,11 +324,12 @@
                         // After the rapid slide down (0.5s), reset all classes
                         setTimeout(() => {
                             catContainer.classList.remove('ascending-cat', 'slide-down');
-                            catImageElement.style.transform = 'scale(1)';
+                            catContainer.style.transform = '';
+                            catImageElement.style.transform = '';
                         }, 500); // Wait for the slide down transition to complete
                     }, 3500); // 3s slide up + 0.5s pause
 
-                }, 50); // Small initial delay to ensure class is rendered
+                }, 100); // Longer delay to ensure class is rendered and initial position is set
 
             } else {
                 // Standard slide animations
@@ -626,35 +632,37 @@
             const catIndex = Math.floor(Math.random() * catImages.length);
             catImageElement.src = catImages[catIndex];
 
-            // Clear previous animation classes and styles - ensure clean slate
-            catContainer.classList.remove('is-active', 'from-top', 'from-right', 'from-bottom', 'from-left', 'ascending-cat', 'slide-down');
-            catContainer.style.transform = '';
+            // Clear all classes and styles first
+            catContainer.className = 'cat-container';
             catImageElement.style.transform = '';
             
-            // Force a reflow to ensure styles are applied
+            // Force reflow
             catContainer.offsetHeight;
 
-            // Set up the ascending cat with initial position and scale
+            // Add ascending cat class (starts at bottom, off-screen, no transition)
             catContainer.classList.add('ascending-cat');
-            catImageElement.style.transform = 'scale(3)'; // Scale up image
+            catImageElement.style.transform = 'scale(3)';
             
-            // Start with cat completely off-screen (initial state is set by CSS)
-            setTimeout(() => {
-                catContainer.classList.add('is-active'); // This starts the slow slide up
+            // Force another reflow to ensure initial position
+            catContainer.offsetHeight;
 
+            // Start sliding up after a moment
+            setTimeout(() => {
+                catContainer.classList.add('is-active'); // Slide up with 3s transition
+
+                // After slide up completes + pause, slide back down
                 setTimeout(() => {
                     catContainer.classList.remove('is-active');
-                    catContainer.classList.add('slide-down');
+                    catContainer.classList.add('slide-down'); // Slide down with 0.5s transition
 
+                    // Clean up after slide down completes
                     setTimeout(() => {
-                        // Complete cleanup
-                        catContainer.classList.remove('ascending-cat', 'slide-down');
-                        catContainer.style.transform = '';
+                        catContainer.className = 'cat-container';
                         catImageElement.style.transform = '';
                     }, 500);
-                }, 3500);
+                }, 3500); // 3s slide up + 0.5s pause
 
-            }, 100); // Slightly longer delay to ensure initial position is set
+            }, 100);
         };
 
         // Call the test function on page load
