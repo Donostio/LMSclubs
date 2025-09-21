@@ -385,4 +385,265 @@
             }
 
             if (summaryParts.length > 0) {
-                activeFiltersSummary.textContent = summaryParts.join('
+                activeFiltersSummary.textContent = summaryParts.join(' | ');
+            } else {
+                activeFiltersSummary.textContent = 'All clubs shown';
+            }
+        };
+
+        // Main filtering logic
+        const filterClubs = () => {
+            const year = yearFilter.value;
+            const department = departmentFilter.value;
+            const searchTerm = searchInput.value.toLowerCase();
+
+            // Get selected checkbox values
+            const selectedDays = Array.from(document.querySelectorAll('#day-filter input[name="day"]:checked')).map(cb => cb.value);
+            const selectedWhen = Array.from(document.querySelectorAll('#when-filter input[name="when"]:checked')).map(cb => cb.value);
+            const selectedClubNames = Array.from(document.querySelectorAll('#club-name-filter input[name="club-name"]:checked')).map(cb => cb.value);
+
+            const filtered = clubsData.filter(club => {
+                const matchesSearch = (club.name && club.name.toLowerCase().includes(searchTerm)) || (club.department && club.department.toLowerCase().includes(searchTerm));
+                
+                // FIXED: This logic now correctly checks for the selected year OR 'All Years'
+                const matchesYear = !year || club.year.includes('All Years') || club.year.some(y => y.trim() === year);
+
+                // Checkbox filter logic - If 'All' is selected, it matches all. Otherwise, it checks for specific matches.
+                const matchesDay = selectedDays.includes('All') || selectedDays.length === 0 || selectedDays.includes(club.day);
+                const matchesWhen = selectedWhen.includes('All') || selectedWhen.length === 0 || selectedWhen.includes(club.when);
+                const matchesDepartment = !department || club.department === department;
+                const matchesClubName = selectedClubNames.length === 0 || selectedClubNames.includes(club.name);
+                
+                return matchesSearch && matchesYear && matchesDay && matchesWhen && matchesDepartment && matchesClubName;
+            });
+            renderClubs(filtered);
+            updateFilterSummary(); // Update the summary after filtering
+        };
+
+        // Function to render club cards
+        const renderClubs = (clubs) => {
+            clubsList.innerHTML = '';
+            if (clubs.length === 0) {
+                noResultsMessage.classList.remove('hidden');
+                return;
+            }
+            noResultsMessage.classList.add('hidden');
+
+            clubs.forEach(club => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-6 rounded-xl shadow-md border border-gray-200 transition-all duration-300 hover:shadow-lg";
+                card.innerHTML = `
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">${club.name}</h3>
+                    <div class="flex flex-wrap items-center gap-x-4 text-sm text-gray-600 mb-2">
+                        <div>Day: <span class="font-semibold">${club.day}</span></div>
+                        <div>When: <span class="font-semibold">${club.when}</span></div>
+                        <div>Year Group(s): <span class="font-semibold">${club.year.join(', ')}</span></div>
+                        <div>Department: <span class="font-semibold">${club.department}</span></div>
+                    </div>
+                    <p class="text-sm text-gray-400 mt-2 border-t pt-2 border-gray-100">
+                        Where: <span class="font-semibold text-gray-700">${club.location}</span>, Who: <span class="font-semibold text-gray-700">${club.staff}</span>, Week: <span class="font-semibold text-gray-700">${club.weeks}</span>, Time: <span class="font-semibold text-gray-700">${club.time}</span>
+                    </p>
+                `;
+                clubsList.appendChild(card);
+            });
+        };
+
+        // This function fetches the CSV, parses it, and then renders the clubs
+        const fetchAndRenderClubs = async () => {
+            const loadingMessage = document.getElementById('loading-message');
+            loadingMessage.classList.remove('hidden');
+
+            try {
+                const response = await fetch('clubs.csv');
+                const text = await response.text();
+                
+                // Robust CSV parsing to handle commas inside quoted strings
+                const rows = text.trim().split('\n').slice(1); // Skip header row
+                clubsData = rows.map(row => {
+                    const cols = row.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(c => c.trim().replace(/^"|"$/g, ''));
+                    // Mapping columns to the object structure
+                    return {
+                        name: cols[0] || null,
+                        when: cols[1] || null,
+                        day: cols[2] || null,
+                        weeks: cols[3] || null,
+                        time: cols[4] || null,
+                        // FIX: Use a regex to split by comma, ampersand, or space
+                        year: (() => {
+                            const yearGroupString = cols[5] || '';
+                            if (yearGroupString.includes('All Years')) {
+                                return ['All Years'];
+                            }
+                            return yearGroupString.split(/[,\s&]+/).map(y => y.trim()).filter(Boolean);
+                        })() || [],
+                        location: cols[6] || null,
+                        staff: cols[7] || null,
+                        department: cols[8] || null
+                    };
+                }).filter(club => club.name); // Filter out rows with no club name
+
+                // Collect unique values for filters
+                const uniqueDays = ['All', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+                const uniqueTimes = ['All', 'Before School', 'Lunchtime', 'After School'];
+                const uniqueClubNames = [...new Set(clubsData.map(c => c.name))].filter(Boolean).sort();
+
+                // Populate filter dropdowns
+                populateCheckboxes(document.getElementById('day-filter'), uniqueDays, 'day', ['All']);
+                populateCheckboxes(document.getElementById('when-filter'), uniqueTimes, 'when', ['All']);
+                populateCheckboxes(document.getElementById('club-name-filter'), uniqueClubNames, 'club-name');
+
+                loadingMessage.classList.add('hidden');
+                filterClubs();
+            } catch (error) {
+                console.error("Error fetching or parsing CSV:", error);
+                loadingMessage.innerHTML = `<p class="mt-4 text-xl font-medium text-red-500">Failed to load data. Please check the file.</p>`;
+            }
+        };
+
+        // Event Listeners
+        filterBtn.addEventListener('click', () => {
+            filterPanel.classList.add('is-active');
+            filterOverlay.classList.remove('hidden'); // Show overlay
+            handleInteraction();
+        });
+        closeFilterBtn.addEventListener('click', () => {
+            filterPanel.classList.remove('is-active');
+            filterOverlay.classList.add('hidden'); // Hide overlay
+            handleInteraction();
+        });
+        filterOverlay.addEventListener('click', () => {
+            filterPanel.classList.remove('is-active');
+            filterOverlay.classList.add('hidden'); // Hide overlay
+            handleInteraction();
+        });
+
+        // Individual Clear Buttons
+        clearYearBtn.addEventListener('click', () => {
+            yearFilter.value = '';
+            filterClubs();
+            handleInteraction();
+        });
+
+        clearDayBtn.addEventListener('click', () => {
+            document.querySelectorAll('#day-filter input').forEach(checkbox => {
+                checkbox.checked = checkbox.value === 'All';
+            });
+            filterClubs();
+            handleInteraction();
+        });
+
+        clearWhenBtn.addEventListener('click', () => {
+            document.querySelectorAll('#when-filter input').forEach(checkbox => {
+                checkbox.checked = checkbox.value === 'All';
+            });
+            filterClubs();
+            handleInteraction();
+        });
+
+        clearDepartmentBtn.addEventListener('click', () => {
+            departmentFilter.value = '';
+            filterClubs();
+            handleInteraction();
+        });
+
+        clearClubNameBtn.addEventListener('click', () => {
+            document.querySelectorAll('#club-name-filter input').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            filterClubs();
+            handleInteraction();
+        });
+
+        // Main filter events
+        searchInput.addEventListener('input', () => {
+            filterClubs();
+            handleInteraction();
+        });
+        yearFilter.addEventListener('change', () => {
+            filterClubs();
+            handleInteraction();
+        });
+        departmentFilter.addEventListener('change', () => {
+            filterClubs();
+            handleInteraction();
+        });
+        
+        // Listen for changes on all checkbox filters
+        document.querySelectorAll('#day-filter, #when-filter, #club-name-filter').forEach(container => {
+            container.addEventListener('change', (event) => {
+                if (event.target.value === 'All' && event.target.checked) {
+                    container.querySelectorAll('input').forEach(cb => {
+                        if (cb.value !== 'All') cb.checked = false;
+                    });
+                } else if (event.target.value !== 'All' && event.target.checked) {
+                    const allCheckbox = container.querySelector('input[value="All"]');
+                    if (allCheckbox) {
+                        allCheckbox.checked = false;
+                    }
+                }
+                filterClubs();
+                handleInteraction();
+            });
+        });
+
+        clearFiltersBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            yearFilter.value = '';
+            departmentFilter.value = '';
+            // Uncheck all checkboxes except 'All' for applicable filters
+            document.querySelectorAll('#day-filter input, #when-filter input').forEach(checkbox => {
+                checkbox.checked = checkbox.value === 'All';
+            });
+            // Clear all club name checkboxes
+            document.querySelectorAll('#club-name-filter input').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            filterClubs(); // Re-render with all filters cleared
+            handleInteraction();
+        });
+
+        // Initial render
+        document.addEventListener('DOMContentLoaded', fetchAndRenderClubs);
+
+        // Periodically trigger an interaction to ensure the cat appears,
+        // even if the user isn't actively interacting.
+        setInterval(handleInteraction, 3000);
+
+        // START OF TEMPORARY CODE FOR TESTING THE LARGE CAT ANIMATION
+        // REMEMBER TO REMOVE OR COMMENT THIS BLOCK OUT LATER
+        // This function bypasses the random selection to only show the ascending cat
+        const showAscendingCatForTesting = () => {
+            const catIndex = Math.floor(Math.random() * catImages.length);
+            catImageElement.src = catImages[catIndex];
+
+            // Clear previous animation classes and styles
+            catContainer.classList.remove('is-active', 'from-top', 'from-right', 'from-bottom', 'from-left', 'ascending-cat', 'slide-down');
+            catContainer.style.transition = 'transform 0.5s ease-in-out';
+            catImageElement.style.transform = 'scale(1)';
+
+            catContainer.classList.add('ascending-cat');
+            catImageElement.style.transform = 'scale(3)'; // Scale up image
+
+            setTimeout(() => {
+                catContainer.classList.add('is-active');
+
+                setTimeout(() => {
+                    catContainer.classList.remove('is-active');
+                    catContainer.classList.add('slide-down');
+
+                    setTimeout(() => {
+                        catContainer.classList.remove('ascending-cat', 'slide-down');
+                        catImageElement.style.transform = 'scale(1)';
+                    }, 500);
+                }, 3500);
+
+            }, 50);
+        };
+
+        // Call the test function on page load
+        document.addEventListener('DOMContentLoaded', showAscendingCatForTesting);
+        // END OF TEMPORARY CODE
+    </script>
+
+</body>
+</html>
