@@ -90,7 +90,7 @@
         .cat-container.ascending-cat.is-active {
             transform: translateX(-50%) translateY(-66.6666%); /* Up to two-thirds of the screen height */
         }
-        .cat-container.ascending-cat.is-active.slide-down {
+        .cat-container.ascending-cat.slide-down {
             transition: transform 0.5s ease-in; /* Rapid slide back down */
             transform: translateX(-50%) translateY(100%);
         }
@@ -272,8 +272,9 @@
         const catWrapper = document.getElementById('cat-wrapper');
         let interactionCount = 0;
         
-        const catIntervalMin = 1;
-        const catIntervalMax = 5;
+        // Updated cat frequency settings (1/10th the rate, minimum 30s delay)
+        const catIntervalMin = 10;
+        const catIntervalMax = 50;
         let nextCatInteraction = Math.floor(Math.random() * (catIntervalMax - catIntervalMin + 1)) + catIntervalMin;
 
         // NEW: Function to show cat with random slide animation
@@ -294,23 +295,27 @@
             if (chosenAnimation === 'ascending-cat') {
                 catContainer.classList.add('ascending-cat');
                 catImageElement.style.transform = 'scale(3)'; // Scale up image
-                catContainer.style.transition = 'transform 3s ease-out';
                 
+                // Use a single timeout chain to ensure transitions happen correctly
                 setTimeout(() => {
-                    catContainer.classList.add('is-active');
+                    catContainer.classList.add('is-active'); // Start slide up
+                    
+                    // After the slow slide up and a brief pause, start the rapid slide down
+                    setTimeout(() => {
+                        catContainer.classList.add('slide-down'); // Start rapid slide down
+                        
+                        // After the rapid slide down, reset all classes
+                        catContainer.addEventListener('transitionend', function handler(e) {
+                            if (e.propertyName === 'transform' && !catContainer.classList.contains('is-active')) {
+                                catContainer.classList.remove('ascending-cat', 'slide-down');
+                                catImageElement.style.transform = 'scale(1)';
+                                catContainer.removeEventListener('transitionend', handler);
+                            }
+                        });
+                        
+                    }, 3500); // 3 seconds for slide up + 0.5s pause
                 }, 50);
 
-                // Wait for the pause and then slide down
-                setTimeout(() => {
-                    catContainer.classList.add('slide-down');
-                }, 3500); // 3 seconds for slide up + 0.5s pause
-
-                // After the rapid slide down, reset
-                setTimeout(() => {
-                    catContainer.classList.remove('is-active', 'ascending-cat', 'slide-down');
-                    catImageElement.style.transform = 'scale(1)';
-                }, 4000); // 3.5s + 0.5s for slide down
-                
             } else {
                 // Standard slide animations
                 catContainer.classList.add(chosenAnimation);
@@ -608,7 +613,3 @@
 
 </body>
 </html>
-
-
-
-
