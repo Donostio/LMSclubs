@@ -80,19 +80,19 @@
             transform: translate(0, -50%);
         }
 
-        /* Ascending cat animation specifics */
+        /* Ascending cat animation specifics (fixed: horizontal centering separated from vertical) */
         .cat-container.ascending-cat {
             bottom: 0;
             left: 50%;
-            transform: translateX(-50%) translateY(100%);
-            transition: transform 3s ease-out;
+            transform: translateX(-50%) translateY(100%); /* Start completely below */
+            transition: transform 3s ease-out; /* Slower initial slide up */
         }
         .cat-container.ascending-cat.is-active {
-            transform: translateX(-50%) translateY(-66.6666%);
+            transform: translateX(-50%) translateY(-66.6666%); /* Up to two-thirds of the screen height */
         }
         .cat-container.ascending-cat.slide-down {
-            transition: transform 0.5s ease-in;
-            transform: translateX(-50%) translateY(100%);
+            transition: transform 0.5s ease-in; /* Rapid slide back down */
+            transform: translateX(-50%) translateY(100%); /* Slide fully off the bottom */
         }
         
         .cat-container img {
@@ -238,7 +238,8 @@
         
         <div class="text-center text-xs text-gray-400 mt-8">
             <p>This site is maintained by LMS class reps 🌹</p> 
-            <p>Your feedback helps us make the site better for everyone. <a href="https://forms.gle/5Gdrj6RPAEXf7jKy8" target="_blank" rel="noopener noreferrer" class="text-purple-600 hover:text-purple-800 transition-colors duration-200">Please share your thoughts here 💬</a><p>
+            <p>Your feedback helps us make the site better for everyone. <a href="https://forms.gle/5Gdrj6RPAEXf7jKy8" target="_blank" rel="noopener noreferrer" class="text-purple-600 hover:text-purple-800 transition-colors duration-200"> </p>
+            <p>Please share your thoughts here 💬</a><p>
         </div>
     </div>
 
@@ -303,13 +304,20 @@
                     setTimeout(() => {
                         // Remove 'is-active' and add 'slide-down' to trigger the rapid exit
                         catContainer.classList.remove('is-active');
-                        catContainer.classList.add('slide-down');
-
-                        // After the rapid slide down (0.5s), reset all classes
+                        // Add a small extra pause (200ms) before sliding down for a nicer feel
                         setTimeout(() => {
-                            catContainer.classList.remove('ascending-cat', 'slide-down');
-                            catImageElement.style.transform = 'scale(1)';
-                        }, 500); // 0.5s for the slide down
+                            catContainer.classList.add('slide-down');
+
+                            // After the rapid slide down, wait for transitionend to fully finish before reset
+                            const handleSlideDownEnd = () => {
+                                catContainer.classList.remove('ascending-cat', 'slide-down');
+                                catImageElement.style.transform = 'scale(1)';
+                                catContainer.removeEventListener('transitionend', handleSlideDownEnd);
+                            };
+                            catContainer.addEventListener('transitionend', handleSlideDownEnd);
+
+                        }, 200); // 200ms extra pause
+
                     }, 3500); // 3s slide up + 0.5s pause
 
                 }, 50); // Small initial delay to ensure class is rendered
@@ -627,12 +635,20 @@
 
                 setTimeout(() => {
                     catContainer.classList.remove('is-active');
-                    catContainer.classList.add('slide-down');
-
+                    // add a small extra pause before sliding down (200ms)
                     setTimeout(() => {
-                        catContainer.classList.remove('ascending-cat', 'slide-down');
-                        catImageElement.style.transform = 'scale(1)';
-                    }, 500);
+                        catContainer.classList.add('slide-down');
+
+                        // Wait for the animation to complete using transitionend
+                        const handleSlideDownEnd = () => {
+                            catContainer.classList.remove('ascending-cat', 'slide-down');
+                            catImageElement.style.transform = 'scale(1)';
+                            catContainer.removeEventListener('transitionend', handleSlideDownEnd);
+                        };
+                        catContainer.addEventListener('transitionend', handleSlideDownEnd);
+
+                    }, 200); // 200ms extra pause
+
                 }, 3500);
 
             }, 50);
@@ -645,3 +661,4 @@
 
 </body>
 </html>
+
