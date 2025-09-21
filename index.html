@@ -249,7 +249,7 @@
         </div>
         
         <div class="text-center text-xs text-gray-400 mt-8">
-            <p>This site is maintained by LMS class reps🚀🚀</p> 
+            <p>This site is maintained by LMS class reps🚀🚀🚀</p> 
             <p>Your feedback helps us make the site better for everyone. <a href="https://forms.gle/5Gdrj6RPAEXf7jKy8" target="_blank" rel="noopener noreferrer" class="text-purple-600 hover:text-purple-800 transition-colors duration-200">Please share your thoughts here 💬</a><p>
         </div>
     </div>
@@ -662,7 +662,6 @@
         const showAscendingCatForTesting = () => {
             const catIndex = Math.floor(Math.random() * catImages.length);
             const selectedCatImage = catImages[catIndex];
-            catImageElement.src = selectedCatImage;
 
             // Complete reset - remove all classes and inline styles
             catContainer.className = 'cat-container';
@@ -678,6 +677,9 @@
             catContainer.style.pointerEvents = 'none';
             catContainer.style.transition = 'none'; // No transition initially
             catContainer.style.overflow = 'hidden'; // Prevent any spillover
+            
+            // Set the image source AFTER setting up the container
+            catImageElement.src = selectedCatImage;
             
             // Set up the scaled cat image properly
             catImageElement.style.width = '450px'; // 150px * 3 = 450px for scale(3) effect
@@ -721,7 +723,7 @@
         };
 
         // Call the test function on page load
-        // document.addEventListener('DOMContentLoaded', showAscendingCatForTesting);
+        document.addEventListener('DOMContentLoaded', showAscendingCatForTesting);
         // END OF TEMPORARY CODE
     </script>
 
