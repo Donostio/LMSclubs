@@ -295,26 +295,25 @@
             if (chosenAnimation === 'ascending-cat') {
                 catContainer.classList.add('ascending-cat');
                 catImageElement.style.transform = 'scale(3)'; // Scale up image
-                
-                // Use a single timeout chain to ensure transitions happen correctly
+
+                // Use a single, reliable timeout chain for this specific animation
                 setTimeout(() => {
-                    catContainer.classList.add('is-active'); // Start slide up
-                    
-                    // After the slow slide up and a brief pause, start the rapid slide down
+                    catContainer.classList.add('is-active'); // This starts the slow slide up
+
+                    // After the slow slide up (3s) and a pause (0.5s), start the rapid slide down
                     setTimeout(() => {
-                        catContainer.classList.add('slide-down'); // Start rapid slide down
-                        
-                        // After the rapid slide down, reset all classes
-                        catContainer.addEventListener('transitionend', function handler(e) {
-                            if (e.propertyName === 'transform' && !catContainer.classList.contains('is-active')) {
-                                catContainer.classList.remove('ascending-cat', 'slide-down');
-                                catImageElement.style.transform = 'scale(1)';
-                                catContainer.removeEventListener('transitionend', handler);
-                            }
-                        });
-                        
-                    }, 3500); // 3 seconds for slide up + 0.5s pause
-                }, 50);
+                        // Remove 'is-active' and add 'slide-down' to trigger the rapid exit
+                        catContainer.classList.remove('is-active');
+                        catContainer.classList.add('slide-down');
+
+                        // After the rapid slide down (0.5s), reset all classes
+                        setTimeout(() => {
+                            catContainer.classList.remove('ascending-cat', 'slide-down');
+                            catImageElement.style.transform = 'scale(1)';
+                        }, 500); // 0.5s for the slide down
+                    }, 3500); // 3s slide up + 0.5s pause
+
+                }, 50); // Small initial delay to ensure class is rendered
 
             } else {
                 // Standard slide animations
