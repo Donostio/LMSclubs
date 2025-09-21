@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LMS Clubs</title>
-    <!-- Your favicon file. Name your 32x32px transparent PNG 'lms_logo.png' and place it in the same directory. -->
     <link rel="icon" type="image/png" href="lms_logo.png">
-    <!-- Tailwind CSS from CDN for modern styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Inter font for a clean look -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <style>
         body {
@@ -35,51 +32,89 @@
             pointer-events: auto;
         }
         
-        /* Main container for the cat animations */
+        /* New cat animation CSS */
         .cat-container {
             position: fixed;
             z-index: 100;
             pointer-events: none;
             will-change: transform;
         }
+
+        /* Default state (hidden) */
+        .cat-container:not(.is-active) {
+            transform: translate(-100vw, 0); /* Off-screen left */
+        }
         
-        /* Standard animation: slides from left/right */
-        .cat-container.is-normal {
+        .cat-container.from-top {
+            top: 0;
+            left: 50%;
+            transform: translate(-50%, -100vh);
+        }
+        .cat-container.from-right {
             top: 50%;
-            transform: translateY(-50%) translateX(-100vw);
-            transition: transform 0.5s ease-in-out;
+            right: 0;
+            transform: translate(100vw, -50%);
         }
-        .cat-container.is-normal.from-right {
-            transform: translateY(-50%) translateX(100vw);
+        .cat-container.from-bottom {
+            bottom: 0;
+            left: 50%;
+            transform: translate(-50%, 100vh);
         }
-        .cat-container.is-normal.is-active.from-left {
-            transform: translateY(-50%) translateX(0);
-        }
-        .cat-container.is-normal.is-active.from-right {
-            transform: translateY(-50%) translateX(calc(-100% + 100vw));
+        .cat-container.from-left {
+            top: 50%;
+            left: 0;
+            transform: translate(-100vw, -50%);
         }
 
+        /* Active states (sliding in) */
+        .cat-container.from-top.is-active {
+            transform: translate(-50%, 0);
+        }
+        .cat-container.from-right.is-active {
+            transform: translate(0, -50%);
+        }
+        .cat-container.from-bottom.is-active {
+            transform: translate(-50%, 0);
+        }
+        .cat-container.from-left.is-active {
+            transform: translate(0, -50%);
+        }
+
+        /* Ascending cat animation specifics */
+        .cat-container.ascending-cat {
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%) translateY(100%); /* Off-screen bottom */
+            transition: transform 3s ease-out; /* Slower initial slide up */
+        }
+        .cat-container.ascending-cat.is-active {
+            transform: translateX(-50%) translateY(-66.6666%); /* Up to two-thirds of the screen height */
+        }
+        .cat-container.ascending-cat.is-active.slide-down {
+            transition: transform 0.5s ease-in; /* Rapid slide back down */
+            transform: translateX(-50%) translateY(100%);
+        }
+        
         .cat-container img {
             width: 150px;
             height: auto;
             border-radius: 0.75rem;
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .cat-container.ascending-cat img {
+            transform: scale(3);
         }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col items-center">
 
-    <!-- Cat Container (for animation) -->
     <div id="cat-container" class="cat-container">
         <div id="cat-wrapper" class="cat-wrapper">
             <img id="cat-image" src="" alt="" class="cat-image">
         </div>
     </div>
 
-    <!-- Main App Container -->
     <div class="relative w-full max-w-2xl mx-auto flex flex-col p-4 sm:p-6 bg-white rounded-b-3xl shadow-lg">
 
-        <!-- Header -->
         <div class="flex items-center justify-between mb-4">
             <h1 class="text-3xl font-bold text-gray-800">Lady Margaret School Clubs 2025-26</h1>
             <button id="filter-btn" class="p-2 bg-purple-600 text-white rounded-full shadow-md hover:bg-purple-700 transition-colors duration-200">
@@ -89,12 +124,9 @@
             </button>
         </div>
         
-        <!-- Active Filters Summary -->
         <div id="active-filters-summary" class="text-sm text-gray-500 mb-4 transition-all duration-300">
-            <!-- Filter summary will be dynamically added here -->
-        </div>
+            </div>
 
-        <!-- Search Input -->
         <div class="relative mb-6">
             <input type="text" id="search-input" placeholder="Search for a club..." class="w-full pl-10 pr-4 py-2 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors border-2 border-gray-200">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400">
@@ -102,7 +134,6 @@
             </svg>
         </div>
         
-        <!-- Filter Overlay (Hidden by default) -->
         <div id="filter-overlay" class="fixed inset-0 z-40 bg-black bg-opacity-50 backdrop-blur-sm backdrop hidden"></div>
         
         <div id="filter-panel" class="fixed right-0 top-0 h-full w-full max-w-sm bg-white shadow-xl z-50 p-6 flex flex-col filter-panel">
@@ -115,7 +146,6 @@
                 </button>
             </div>
             
-            <!-- Filter Dropdowns -->
             <div class="space-y-6 mb-8 overflow-y-auto">
                 <div>
                     <div class="flex items-center justify-between">
@@ -134,29 +164,24 @@
                     </select>
                 </div>
                 
-                <!-- Multi-select for Day -->
                 <div>
                     <div class="flex items-center justify-between">
                         <label class="block text-gray-700 font-medium mb-2">Day</label>
                         <button id="clear-day-btn" class="text-xs text-purple-600 hover:text-purple-800 font-semibold transition-colors">Clear</button>
                     </div>
                     <div id="day-filter" class="bg-gray-50 rounded-xl p-4 space-y-2 border border-gray-200">
-                        <!-- Checkboxes will be dynamically inserted here -->
-                    </div>
+                        </div>
                 </div>
 
-                <!-- Multi-select for When -->
                 <div>
                     <div class="flex items-center justify-between">
                         <label class="block text-gray-700 font-medium mb-2">When</label>
                         <button id="clear-when-btn" class="text-xs text-purple-600 hover:text-purple-800 font-semibold transition-colors">Clear</button>
                     </div>
                     <div id="when-filter" class="bg-gray-50 rounded-xl p-4 space-y-2 border border-gray-200">
-                        <!-- Checkboxes will be dynamically inserted here -->
-                    </div>
+                        </div>
                 </div>
 
-                <!-- Dropdown for Department -->
                 <div>
                     <div class="flex items-center justify-between">
                         <label for="department-filter" class="block text-gray-700 font-medium mb-1">Department</label>
@@ -180,27 +205,22 @@
                     </select>
                 </div>
                 
-                <!-- Multi-select for Club Name -->
                 <div>
                     <div class="flex items-center justify-between">
                         <label class="block text-gray-700 font-medium mb-2">Club Name</label>
                         <button id="clear-club-name-btn" class="text-xs text-purple-600 hover:text-purple-800 font-semibold transition-colors">Clear</button>
                     </div>
                     <div id="club-name-filter" class="bg-gray-50 rounded-xl p-4 space-y-2 border border-gray-200 max-h-64 overflow-y-auto">
-                        <!-- Checkboxes will be dynamically inserted here -->
-                    </div>
+                        </div>
                 </div>
             </div>
             
             <button id="clear-filters-btn" class="w-full py-3 bg-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-300 transition-colors duration-200 mt-auto">Clear All Filters</button>
         </div>
 
-        <!-- Clubs List -->
         <div id="clubs-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-            <!-- Club cards will be dynamically inserted here -->
-        </div>
+            </div>
 
-        <!-- Loading message -->
         <div id="loading-message" class="text-center text-gray-500 py-12 hidden">
             <svg class="animate-spin h-8 w-8 text-purple-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -209,7 +229,6 @@
             <p class="mt-4 text-xl font-medium">Loading clubs data...</p>
         </div>
 
-        <!-- No Results Message -->
         <div id="no-results" class="hidden text-center text-gray-500 py-12">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 mx-auto mb-4 text-gray-300">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
@@ -217,7 +236,6 @@
             <p class="text-xl font-medium">No clubs found matching your criteria.</p>
         </div>
         
-        <!-- Footer text added here -->
         <div class="text-center text-xs text-gray-400 mt-8">
             <p>This site is maintained by LMS class reps 🌹</p> 
             <p>Your feedback helps us make the site better for everyone. <a href="https://forms.gle/5Gdrj6RPAEXf7jKy8" target="_blank" rel="noopener noreferrer" class="text-purple-600 hover:text-purple-800 transition-colors duration-200">Please share your thoughts here 💬</a><p>
@@ -258,32 +276,53 @@
         const catIntervalMax = 5;
         let nextCatInteraction = Math.floor(Math.random() * (catIntervalMax - catIntervalMin + 1)) + catIntervalMin;
 
+        // NEW: Function to show cat with random slide animation
         const showCat = () => {
             console.log("showCat() is being called. A cat should be appearing!");
-            // Randomly choose a cat and a slide direction
             const catIndex = Math.floor(Math.random() * catImages.length);
-            const slideFromRight = Math.random() < 0.5;
-
             catImageElement.src = catImages[catIndex];
-            
-            // Apply standard cat animation classes and styles
-            catContainer.classList.add('is-normal');
-            catWrapper.style.overflow = 'visible';
-            catContainer.style.transitionDuration = '0.5s';
-            
-            // Update classes for animation
-            catContainer.classList.remove('from-left', 'from-right');
-            catContainer.classList.add(slideFromRight ? 'from-right' : 'from-left');
-            
-            // Slide in
-            setTimeout(() => {
-                catContainer.classList.add('is-active');
-            }, 50);
 
-            // Slide out after 2 seconds
-            setTimeout(() => {
-                catContainer.classList.remove('is-active');
-            }, 2000);
+            // Clear previous animation classes and styles
+            catContainer.classList.remove('is-active', 'from-top', 'from-right', 'from-bottom', 'from-left', 'ascending-cat', 'slide-down');
+            catContainer.style.transition = 'transform 0.5s ease-in-out';
+            catImageElement.style.transform = 'scale(1)';
+
+            const animations = ['from-top', 'from-right', 'from-bottom', 'from-left', 'ascending-cat'];
+            const chosenAnimation = animations[Math.floor(Math.random() * animations.length)];
+            
+            // Handle the new "ascending cat" animation
+            if (chosenAnimation === 'ascending-cat') {
+                catContainer.classList.add('ascending-cat');
+                catImageElement.style.transform = 'scale(3)'; // Scale up image
+                catContainer.style.transition = 'transform 3s ease-out';
+                
+                setTimeout(() => {
+                    catContainer.classList.add('is-active');
+                }, 50);
+
+                // Wait for the pause and then slide down
+                setTimeout(() => {
+                    catContainer.classList.add('slide-down');
+                }, 3500); // 3 seconds for slide up + 0.5s pause
+
+                // After the rapid slide down, reset
+                setTimeout(() => {
+                    catContainer.classList.remove('is-active', 'ascending-cat', 'slide-down');
+                    catImageElement.style.transform = 'scale(1)';
+                }, 4000); // 3.5s + 0.5s for slide down
+                
+            } else {
+                // Standard slide animations
+                catContainer.classList.add(chosenAnimation);
+                setTimeout(() => {
+                    catContainer.classList.add('is-active');
+                }, 50);
+
+                // Slide out after 2 seconds
+                setTimeout(() => {
+                    catContainer.classList.remove('is-active');
+                }, 2000);
+            }
         };
         
         const handleInteraction = () => {
