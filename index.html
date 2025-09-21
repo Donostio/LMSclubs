@@ -628,9 +628,9 @@
         // START OF TEMPORARY CODE FOR TESTING THE LARGE CAT ANIMATION
         // REMEMBER TO REMOVE OR COMMENT THIS BLOCK OUT LATER
         // This function bypasses the random selection to only show the ascending cat (un-has the thtree lines below to activate
-        //const showAscendingCatForTesting = () => {
-          //  const catIndex = Math.floor(Math.random() * catImages.length);
-            //catImageElement.src = catImages[catIndex];
+        const showAscendingCatForTesting = () => {
+            const catIndex = Math.floor(Math.random() * catImages.length);
+            catImageElement.src = catImages[catIndex];
 
             // Complete reset - remove all classes and inline styles
             catContainer.className = 'cat-container';
