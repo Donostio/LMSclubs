@@ -172,9 +172,7 @@
     <a href="https://www.ladymargaretpta.com/">
       <img src="images/PTAlogoH.png" alt="LMS PTA Logo">
     </a>
-  </div>
-
-  <h1 class="title">Lady Margaret School, Clubs 2025-26</h1>
+  </div>Lady Margaret School, Clubs 2025-26</h1>
 
   <div class="actions">
     <a href="lms_clubs_guide.html" class="guide-link">Guide to using this site</a>
@@ -540,64 +538,23 @@ const showAscendingCat = () => {
     catContainer.style.transform = '';
     catImageElement.style.transform = '';
 
+    const animations = ['from-top', 'from-right', 'from-bottom', 'from-left'];
+    const chosenAnimation = animations[Math.floor(Math.random() * animations.length)];
+    
+    // Standard slide animations - set image source here to ensure consistency
     catImageElement.src = selectedCatImage;
-    // Complete reset - remove all classes and inline styles
-    catContainer.className = 'cat-container';
-    catContainer.style.cssText = '';
-    catImageElement.style.cssText = '';
-    
-    // Set up initial position using inline styles (bypassing CSS classes)
-    catContainer.style.position = 'fixed';
-    catContainer.style.bottom = '0';
-    catContainer.style.left = '50%';
-    catContainer.style.transform = 'translate(-50%, 100%)'; // Start completely off-screen
-    catContainer.style.zIndex = '100';
-    catContainer.style.pointerEvents = 'none';
-    catContainer.style.transition = 'none'; // No transition initially
-    catContainer.style.overflow = 'hidden'; // Prevent any spillover
-    
-    // Set up the scaled cat image properly
-    catImageElement.style.width = '1125px'; // 150px * 7.5 = 1125px for scale(7.5) effect
-    catImageElement.style.height = 'auto';
-    catImageElement.style.borderRadius = '0.75rem';
-    catImageElement.style.display = 'block';
-    
-    // Force reflow
-    catContainer.offsetHeight;
-
-    // Start the FAST slide up animation
+    catContainer.classList.add(chosenAnimation);
     setTimeout(() => {
-        catContainer.style.transition = 'transform 0.4s ease-out'; // Fast slide up (0.4s - was 0.8s)
-        catContainer.style.transform = 'translate(-50%, 35%)'; // Stop at about 2/3 visible
+        catContainer.classList.add('is-active');
+    }, 50);
 
-        // After slide up + pause, slide back down SLOWLY
-        setTimeout(() => {
-            catContainer.style.transition = 'transform 3s ease-in'; // Slow slide down (3s)
-            catContainer.style.transform = 'translate(-50%, 100%)'; // Slide back down off-screen
-
-            // Clean up after slide down animation completes
-            setTimeout(() => {
-                // Complete invisibility - multiple approaches to ensure it's gone
-                catContainer.style.display = 'none';
-                catContainer.style.visibility = 'hidden';
-                catContainer.style.opacity = '0';
-                catContainer.style.zIndex = '-999';
-                catContainer.style.transform = 'translate(-50%, 200vh)'; // Move way off screen
-                
-                // Final complete cleanup after ensuring invisibility
-                setTimeout(() => {
-                    catContainer.className = 'cat-container';
-                    catContainer.style.cssText = '';
-                    catImageElement.style.cssText = '';
-                    catImageElement.src = ''; // Clear the image source
-                    
-                    // Clear animation in progress flag
-                    animationInProgress = false;
-                }, 200);
-            }, 5000); // Wait for 3s slow slide down to complete
-        }, 900); // 0.4s slide up + 0.5s pause
-
-    }, 100);
+    // Slide out after 2 seconds
+    setTimeout(() => {
+        catContainer.classList.remove('is-active');
+        
+        // Clear animation in progress flag
+        animationInProgress = false;
+    }, 4000);
 };
 
 // Function to show cat with random slide animation (excluding ascending cat)
@@ -1032,6 +989,7 @@ function initFilterLogic(){
   wireGroup('.day-filter');
   wireGroup('.when-filter');
   wireGroup('.dept-filter');
+  wireGroup('.club-filter');
 }
 
 /* -----------------------------
@@ -1088,6 +1046,8 @@ yearFilterEl.addEventListener('change', ()=>{
   const selectedYear = yearFilterEl.value;
   updateYearSelectColor();
   populateClubList(selectedYear);
+  // Re-run initFilterLogic to wire up new checkboxes after `populateClubList`
+  initFilterLogic(); 
   document.querySelectorAll('#clubs-list input[type=checkbox]').forEach(cb=>{ cb.disabled = !(selectedYear || selectedClubs.has(cb.value)); if(cb.parentElement) { if(selectedYear) cb.parentElement.classList.add('show'); else cb.parentElement.classList.remove('show'); } });
   applyFiltersAndRender();
 });
