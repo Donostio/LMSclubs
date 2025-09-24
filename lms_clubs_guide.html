@@ -160,6 +160,54 @@
       padding: 28px;
       box-shadow: 0 18px 60px rgba(0, 0, 0, 0.20);
     }
+    
+    /* Styles for the modal image viewer */
+    .image-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      visibility: hidden;
+      opacity: 0;
+      transition: visibility 0s, opacity 0.3s linear;
+    }
+
+    .image-modal.visible {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .modal-content {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-content img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .close-button {
+      position: absolute;
+      top: 15px;
+      right: 25px;
+      color: #fff;
+      font-size: 30px;
+      font-weight: bold;
+      cursor: pointer;
+      line-height: 1;
+    }
+
   </style>
 </head>
 <body>
@@ -211,7 +259,12 @@
         </ul>
       </li>
     </ul>
-<br>
+
+    <!-- Inserted image below the list item -->
+    <div style="text-align: center; margin-top: 20px;">
+      <img id="screenshot" src="images/printLMS.png" alt="Screenshot of LMS Clubs timetable" style="width: auto; height: 150%; max-width: 100%; cursor: pointer;">
+    </div>
+
     <hr>
 
     <div class="note">
@@ -234,5 +287,46 @@
       <p>Your feedback helps us make the site better for everyone – <a href="https://forms.gle/5Gdrj6RPAEXf7jKy8" target="_blank" rel="noopener" class="footer-link">Please share your thoughts 💬</a></p>
     </div>
   </div>
+
+  <!-- Modal image viewer -->
+  <div id="imageModal" class="image-modal">
+    <span class="close-button" id="closeButton">&times;</span>
+    <img class="modal-content" id="modalImage" src="" alt="Enlarged image">
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const screenshot = document.getElementById('screenshot');
+      const modal = document.getElementById('imageModal');
+      const modalImage = document.getElementById('modalImage');
+      const closeButton = document.getElementById('closeButton');
+      const tipsBox = document.querySelector('.note');
+
+      // Calculate the height of the tips box
+      const tipsBoxHeight = tipsBox.offsetHeight;
+
+      // Set the height of the screenshot to be 1.5 times the tips box height
+      screenshot.style.height = `${tipsBoxHeight * 1.5}px`;
+
+      // Open the modal when the image is clicked
+      screenshot.addEventListener('click', () => {
+        modal.classList.add('visible');
+        modalImage.src = screenshot.src;
+      });
+
+      // Close the modal when the close button or the background is clicked
+      closeButton.addEventListener('click', () => {
+        modal.classList.remove('visible');
+      });
+
+      modal.addEventListener('click', (event) => {
+        if (event.target === modal) {
+          modal.classList.remove('visible');
+        }
+      });
+    });
+  </script>
+
 </body>
 </html>
+
