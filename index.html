@@ -518,14 +518,14 @@ const catWrapper = document.getElementById('cat-wrapper');
 let interactionCount = 0;
 
 // Updated cat frequency settings with 30s minimum delay
-const catIntervalMin = 10;
+const catIntervalMin = 30;
 const catIntervalMax = 50;
 let nextCatInteraction = Math.floor(Math.random() * (catIntervalMax - catIntervalMin + 1)) + catIntervalMin;
 
 // Separate counter for ascending cat (100-200 interactions - much rarer)
 let ascendingCatCount = 0;
-const ascendingCatMin = 100;
-const ascendingCatMax = 200;
+const ascendingCatMin = 80;
+const ascendingCatMax = 120;
 let nextAscendingCatInteraction = Math.floor(Math.random() * (ascendingCatMax - ascendingCatMin + 1)) + ascendingCatMin;
 
 // 30-second minimum delay tracking
@@ -1239,7 +1239,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // TEST: Trigger ascending cat on page load (disable before deploy)
-// window.addEventListener('load', () => showAscendingCat());
+window.addEventListener('load', () => showAscendingCat());
 </script>
 </body>
 </html>
