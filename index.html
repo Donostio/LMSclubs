@@ -157,7 +157,36 @@
     /* Filter summary repositioning */
     .search-filter-row { display:flex; align-items:flex-end; gap:12px; }
     #active-filters-summary { margin-left:12px; transform:translateY(-100%); }
-  </style>
+  
+/* ===== Weekday grid on desktop; single column on mobile ===== */
+#clubs-list.weekday-grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:14px;
+  align-items:start;
+}
+.day-column{display:flex;flex-direction:column;gap:14px}
+.day-col-header{
+  font-weight:700;font-size:14px;color:#111;
+  padding:6px 4px 8px;border-bottom:1px solid #e6e6e6;margin-bottom:4px;
+}
+@media (max-width:720px){
+  #clubs-list.weekday-grid{grid-template-columns:1fr}
+  .day-col-header{position:sticky;top:0;background:#fff}
+}
+
+/* ===== Time-based colour tints for club cards ===== */
+.club-card[data-when="Before School"] {
+  background-color: rgba(255, 255, 0, 0.15); /* soft yellow */
+}
+.club-card[data-when="Lunchtime"] {
+  background-color: rgba(0, 128, 255, 0.15); /* soft blue */
+}
+.club-card[data-when="After School"] {
+  background-color: rgba(0, 200, 0, 0.15); /* soft green */
+}
+
+</style>
 </head>
 <body>
   <div id="cat-container" class="cat-container">
@@ -520,8 +549,8 @@ const ascendingCatMax = 120;
 let nextAscendingCatInteraction = Math.floor(Math.random() * (ascendingCatMax - ascendingCatMin + 1)) + ascendingCatMin;
 
 // 30-second minimum delay tracking
-let lastCatTime = 0;
-const CAT_MIN_DELAY = 30000; // 30 seconds in milliseconds
+let lastCatTime = Date.now();
+const CAT_MIN_DELAY = 20000; // 30 seconds in milliseconds
 
 // Flag to prevent multiple animations running simultaneously
 let animationInProgress = false;
@@ -733,65 +762,101 @@ function clubMatchesFilter(club, f){
   return true;
 }
 
+
+/* Build a single club card (reuses existing styles/logic) */
+function buildClubCard(club){
+  const card = document.createElement('div');
+card.className = 'club-card';
+  card.setAttribute('data-when', club.when || '');
+  if(selectedClubs.has(club.urn)) card.classList.add('selected');
+
+  let yearsText = Array.isArray(club.year) ? club.year.join(', ') : String(club.year || '');
+  if (/all\s*years/i.test(yearsText)) yearsText = 'All Years';
+  yearsText = `<span class="muted">Years:</span> ${esc(yearsText)}`;
+
+  card.innerHTML = `
+    <div style="font-weight:700;font-size:15px;margin-bottom:6px;color:#111;">${esc(club.name)}</div>
+    <div style="font-size:13px;color:#111;margin-bottom:6px;">${esc(club.day)} • ${esc(club.when)}</div>
+    <div style="font-size:12px;color:#111;margin-bottom:6px;">${yearsText}</div>
+    <div style="font-size:12px;color:var(--muted);">Where: <span class="muted">${esc(club.location)}</span> • Who: <span class="muted">${esc(club.staff)}</span></div>
+  `;
+
+  const cbWrap = document.createElement('div'); 
+  cbWrap.className = 'club-select-box';
+  if(yearFilterEl.value) cbWrap.classList.add('show');
+
+  const cb = document.createElement('input'); 
+  cb.type = 'checkbox'; 
+  cb.value = club.urn; 
+  cb.checked = selectedClubs.has(club.urn);
+  cb.disabled = !(yearFilterEl.value || selectedClubs.has(cb.value));
+  cb.title = cb.disabled ? 'Select a year to enable selection' : 'Select this club';
+
+  cb.addEventListener('change', (e)=>{
+    if(e.target.checked){
+      if(checkForDuplicateClub(club)){ showToastMessage('You have more than one club at that time...', card); }
+      selectedClubs.add(club.urn); 
+      card.classList.add('selected');
+    } else {
+      selectedClubs.delete(club.urn); 
+      card.classList.remove('selected');
+    }
+    saveSelections(); 
+    updatePrintControls();
+  });
+
+  cbWrap.appendChild(cb); 
+  card.appendChild(cbWrap);
+  return card;
+}
+
 /* -----------------------------
    Render club cards
    ----------------------------- */
 // Special club note logic removed as requested
 
-function renderClubs(){
+function renderClubs() {
   const f = getActiveFilters();
   const filtered = clubsData.filter(c => clubMatchesFilter(c, f));
+
   clubsListEl.innerHTML = '';
-  if(filtered.length === 0){
-    document.getElementById('no-results').style.display = 'block';
+  clubsListEl.classList.add('weekday-grid');
+
+  const noResultsEl = document.getElementById('no-results');
+  if (filtered.length === 0) {
+    if (noResultsEl) noResultsEl.style.display = 'block';
+    return;
   } else {
-    document.getElementById('no-results').style.display = 'none';
+    if (noResultsEl) noResultsEl.style.display = 'none';
   }
 
-  filtered.forEach(club=>{
-    const card = document.createElement('div');
-    card.className = 'club-card';
-    if(selectedClubs.has(club.urn)) card.classList.add('selected');
+  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+  const timeOrder = ['Before School', 'Lunchtime', 'After School'];
 
-    let yearsText = '';
-    if(club.year.includes('All Years')) yearsText = 'All Years';
-    else yearsText = club.year.join(', ');
-    // Always show "Years:" prefix regardless of filter selection
-    yearsText = `<span class="muted">Years:</span> ${esc(yearsText)}`;
+  days.forEach(day => {
+    const col = document.createElement('div');
+    col.className = 'day-column';
 
-    card.innerHTML = `
-      <div style="font-weight:700;font-size:15px;margin-bottom:6px;color:#111;">${esc(club.name)}</div>
-      <div style="font-size:13px;color:#111;margin-bottom:6px;">${esc(club.day)} • ${esc(club.when)}</div>
-      <div style="font-size:12px;color:#111;margin-bottom:6px;">${yearsText}</div>
-      <div style="font-size:12px;color:var(--muted);">Where: <span class="muted">${esc(club.location)}</span> • Who: <span class="muted">${esc(club.staff)}</span></div>
-    `;
+    const header = document.createElement('div');
+    header.className = 'day-col-header';
+    header.textContent = day;
+    col.appendChild(header);
 
-    const cbWrap = document.createElement('div'); cbWrap.className = 'club-select-box';
-    if(yearFilterEl.value) cbWrap.classList.add('show'); // only show checkbox when year selected
-    const cb = document.createElement('input'); cb.type = 'checkbox'; cb.value = club.urn; cb.checked = selectedClubs.has(club.urn);
-    cb.disabled = !(yearFilterEl.value || selectedClubs.has(club.urn));
-    cb.title = cb.disabled ? 'Select a year to enable selection' : 'Select this club';
-    cb.addEventListener('change', (e)=>{
-      if(e.target.checked){
-        // Check for duplicate clubs
-        if(checkForDuplicateClub(club)){
-          showToastMessage('You have more than one club at that time...', card);
-        }
-        selectedClubs.add(club.urn);
-        card.classList.add('selected');
-      } else {
-        selectedClubs.delete(club.urn);
-        card.classList.remove('selected');
-      }
-      saveSelections();
-      updatePrintControls();
-    });
-    cbWrap.appendChild(cb);
-    card.appendChild(cbWrap);
-    clubsListEl.appendChild(card);
+    // Filter clubs for this day and sort by time category
+    const clubsForDay = filtered
+      .filter(c => c.day === day)
+      .sort((a, b) => {
+        const iA = timeOrder.indexOf(a.when);
+        const iB = timeOrder.indexOf(b.when);
+        const aIdx = (iA === -1) ? 999 : iA;
+        const bIdx = (iB === -1) ? 999 : iB;
+        return aIdx - bIdx;
+      });
+
+    clubsForDay.forEach(club => col.appendChild(buildClubCard(club)));
+    clubsListEl.appendChild(col);
   });
 }
-
 /* -----------------------------
    Print controls & printing
    - Single Print Year-group Timetable button only
@@ -1214,99 +1279,3 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
