@@ -199,7 +199,7 @@
 <header class="top">
   <div class="logo">
     <a href="https://www.ladymargaretpta.com/">
-      <img src="images/PTAlogoH.png" alt="LMS PTA Logo">
+      <img src="images/LMSlogo.png" alt="LMS PTA Logo">
     </a>
   </div>
   <h1 class="title">Lady Margaret School, Clubs 2025-26</h1>
@@ -967,7 +967,7 @@ function createPrintHTML(title, selectedArr, othersArr, options){
   let html = `<div id="printable-area">`;
   html += `<div class="header">`;
   html += `<h1>${esc(title)}</h1>`;
-  html += `<img src="images/PTAlogoH.png" alt="LMS PTA Logo" class="logo">`;
+  html += `<img src="images/LMSlogo.png" alt="LMS Logo" class="logo">`;
   html += `</div>`;
   
   if(options.showOtherTitle){
@@ -1006,7 +1006,7 @@ function createPrintHTML(title, selectedArr, othersArr, options){
     html += `</tr>`;
   });
   html += `</tbody></table>`;
-  html += `<div class="footer">This tool is provided by LMS PTA and class reps. Your feedback helps us make the timetable better for everyone. Please share your thoughts here bit.ly/PTAclubsFeedback</div>`;
+  html += `<div class="footer">This tool is provided by an LMS parent. Your feedback helps me make the timetable better for everyone. Please share your thoughts here bit.ly/PTAclubsFeedback</div>`;
   html += `</div>`;
   return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)}</title>${styles}</head><body>${html}</body></html>`;
 }
