@@ -1,0 +1,1315 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>My Clubs</title>
+  <link rel="icon" type="image/png" href="lms_logo.png">
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LNV90DS36X"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-LNV90DS36X');
+  </script>
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root{--muted:#6b7280;--red:#ef4444;--black:#000;}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial; -webkit-font-smoothing:antialiased;}
+    body {
+      background:#000;
+      background-image: repeating-linear-gradient(to right, var(--red), var(--red) 2px, #000 2px, #000 24px);
+    }
+    .page {max-width:1180px;margin:28px auto;background:#fff;border-radius:12px;padding:18px;box-shadow:0 18px 60px rgba(0,0,0,0.20);}
+    header.top { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; }
+    header.top h1 { margin:0; font-size:22px; font-weight:700; color:#111; }
+    #year-filter {padding:10px;border-radius:10px;border:1px solid #e6e6e6;width:20%;min-width:84px;color:var(--red);font-weight:600;}
+    #year-filter.filled { color:#111; }
+    .print-controls { display:flex; align-items:center; gap:8px; margin-top:6px; }
+    #search-input {padding:10px;border-radius:10px;border:1px solid #e6e6e6;width:20%;min-width:200px;}
+    #clubs-list {display:grid;grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));gap:14px;margin-top:12px;}
+    .club-card {position:relative;background:#fff;border:1px solid #e6e6e6;border-radius:12px;padding:14px;color:#111;transition: box-shadow .15s ease, transform .12s ease;min-height:120px;}
+    .club-card:hover {transform:translateY(-4px);box-shadow:0 8px 28px rgba(0,0,0,0.06);}
+    .muted {color:var(--muted);}
+    .club-select-box {position:absolute;right:12px;bottom:12px;}
+    .club-select-box input{display:none;} /* hidden until year selected */
+    .club-select-box.show input{display:block;}
+    .selected {box-shadow:0 0 0 3px rgba(0,0,0,1), 0 0 0 6px rgba(239,68,68,0.95);border:2px solid rgba(239,68,68,0.9);}
+    /* Toast message styling */
+    .toast-message {position:fixed;background:rgba(0,0,0,0.8);color:#fff;padding:12px 16px;border-radius:8px;font-size:14px;z-index:100;pointer-events:none;opacity:0;transition:opacity 0.3s ease;}
+    .toast-message.show {opacity:1;}
+    /* Consistent button widths */
+    .print-button {width:180px;white-space:normal;text-align:center;}
+    /* Deselect all button styling */
+    .deselect-btn {position:relative;background:#fff;border:2px solid rgba(239,68,68,0.9);border-radius:12px;padding:14px;color:#111;cursor:pointer;min-width:160px;box-shadow:0 0 0 3px rgba(0,0,0,1), 0 0 0 6px rgba(239,68,68,0.95);transition: box-shadow .15s ease, transform .12s ease;}
+    .deselect-btn:hover {transform:translateY(-2px);}
+    .deselect-btn .tick-icon {position:absolute;right:12px;top:12px;width:20px;height:20px;}
+    /* Filter panel club name input */
+    .club-name-input {width:100%;padding:8px;border:1px solid #e6e6e6;border-radius:6px;font-size:13px;}
+    .clear-club-name {margin-left:8px;font-size:12px;}
+    .filter-overlay {display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:60;}
+    .filter-panel {position:fixed;right:0;top:0;height:100%;width:360px;max-width:92%;background:#fff;z-index:70;transform:translateX(110%);transition:transform .28s cubic-bezier(.2,.9,.3,1);box-shadow:-20px 20px 60px rgba(0,0,0,0.12);padding:20px;overflow:auto;}
+    .filter-panel h2, .filter-panel strong, .filter-panel label { color:#374151 !important; }
+    .filter-panel label { color:#4b5563 !important; }
+    .filter-panel.open {transform:translateX(0);}
+    .clear-link {color:#7c3aed;cursor:pointer;font-size:13px;background:none;border:none;padding:0;}
+    /* Cat animations */
+    .cat-container {
+      position: fixed;
+      z-index: 100;
+      pointer-events: none;
+      will-change: transform;
+    }
+    /* Standard directional cats */
+    .cat-container.from-top {
+      top: 0;
+      left: 50%;
+      transform: translate(-50%, -100vh);
+      transition: transform 0.8s ease-out;
+    }
+    .cat-container.from-top.is-active {
+      transform: translate(-50%, 0);
+    }
+    .cat-container.from-right {
+      top: 50%;
+      right: 0;
+      transform: translate(100vw, -50%);
+      transition: transform 0.8s ease-out;
+    }
+    .cat-container.from-right.is-active {
+      transform: translate(0, -50%);
+    }
+    .cat-container.from-bottom {
+      bottom: 0;
+      left: 50%;
+      transform: translate(-50%, 100vh);
+      transition: transform 0.8s ease-out;
+    }
+    .cat-container.from-bottom.is-active {
+      transform: translate(-50%, 0);
+    }
+    .cat-container.from-left {
+      top: 50%;
+      left: 0;
+      transform: translate(-100vw, -50%);
+      transition: transform 0.8s ease-out;
+    }
+    .cat-container.from-left.is-active {
+      transform: translate(0, -50%);
+    }
+    /* Ascending cat (large, vertical only) */
+    .cat-container.ascending-cat {
+      bottom: 0;
+      left: 50%;
+      transform: translate(-50%, 100%);
+      transition: none;
+    }
+    .cat-container.ascending-cat.is-active {
+      transform: translate(-50%, -66.6666%);
+      transition: transform 3s ease-out;
+    }
+    .cat-container.ascending-cat.slide-down {
+      transform: translate(-50%, 100%);
+      transition: transform 0.5s ease-in;
+    }
+    /* Cat images */
+    .cat-container img {
+      width: 150px;
+      height: auto;
+      border-radius: 0.75rem;
+    }
+    .cat-container.ascending-cat img {
+      transform: scale(7.5);
+    }
+    @media print {
+      @page { size: landscape; margin:12mm; }
+      body { background:#fff; }
+      #filter-panel, #filter-btn, #search-input, .filter-overlay { display:none !important; }
+      /* printable area visibility handled by generated print HTML */
+    }
+    @media (max-width:720px){ 
+      #search-input, #year-filter { width:100%; } 
+      .print-controls { flex-wrap:wrap; } 
+      /* Fix mobile layout overlap issues */
+      #active-filters-summary { 
+        position: static !important; 
+        transform: none !important; 
+        margin-left: 0 !important; 
+        margin-top: 8px; 
+        font-size: 12px;
+      }
+      .search-filter-row { 
+        flex-direction: column !important; 
+        align-items: flex-start !important; 
+        gap: 8px !important; 
+      }
+      /* Make buttons stack better on mobile - with !important to override global rules */
+      .print-button { width: 100% !important; min-width: 140px !important; }
+      #year-filter { min-width: 100px !important; }
+    }
+    /* Consistent widths for controls - moved before media query */
+    #year-filter { min-width:160px; }
+    .print-button { width:180px; }
+    /* Filter summary repositioning */
+    .search-filter-row { display:flex; align-items:flex-end; gap:12px; }
+    #active-filters-summary { margin-left:12px; transform:translateY(-100%); }
+  
+/* ===== Weekday grid on desktop; single column on mobile ===== */
+#clubs-list.weekday-grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:14px;
+  align-items:start;
+}
+.day-column{display:flex;flex-direction:column;gap:14px}
+.day-col-header{
+  font-weight:700;font-size:14px;color:#111;
+  padding:6px 4px 8px;border-bottom:1px solid #e6e6e6;margin-bottom:4px;
+}
+@media (max-width:720px){
+  #clubs-list.weekday-grid{grid-template-columns:1fr}
+  .day-col-header{position:sticky;top:0;background:#fff}
+}
+
+/* ===== Time-based colour tints for club cards ===== */
+.club-card[data-when="Before School"] {
+  background-color: rgba(255, 255, 0, 0.15); /* soft yellow */
+}
+.club-card[data-when="Lunchtime"] {
+  background-color: rgba(0, 128, 255, 0.15); /* soft blue */
+}
+.club-card[data-when="After School"] {
+  background-color: rgba(0, 200, 0, 0.15); /* soft green */
+}
+
+
+/* ===== What's new badge ===== */
+.whatsnew-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 12px;
+  font-weight:700;
+  font-size:13px;
+  color:#111;
+  text-decoration:none;
+  background:rgba(255, 214, 10, 0.85);
+  border:1px solid rgba(0,0,0,0.12);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.10);
+  /* jagged "flash" edge */
+  clip-path: polygon(
+    0% 20%, 6% 0%, 20% 10%, 32% 0%, 46% 12%, 60% 0%, 74% 12%, 88% 0%, 100% 18%,
+    96% 50%, 100% 82%, 88% 100%, 74% 88%, 60% 100%, 46% 88%, 32% 100%, 20% 90%, 6% 100%, 0% 80%,
+    4% 50%
+  );
+  transition: transform .12s ease;
+}
+.whatsnew-badge:hover{ transform: translateY(-1px); }
+.whatsnew-badge:active{ transform: translateY(0px); }
+.whatsnew-badge .bolt{ font-size:16px; line-height:1; }
+@media (max-width:720px){
+  .whatsnew-badge{ width:100%; justify-content:center; }
+}
+
+\1
+</head>
+<body>
+  <div id="cat-container" class="cat-container">
+    <div id="cat-wrapper" class="cat-wrapper">
+      <img id="cat-image" src="" alt="" class="cat-image">
+    </div>
+  </div>
+
+  <div class="page" role="main">
+<header class="top">
+  <div class="logo">
+     <a href="https://ladymargaret.lbhf.sch.uk/">
+      <img src="images/LMSlogo.png" alt="LMS Logo">
+    </a>
+  </div>
+  \1
+  <a class="whatsnew-badge" href="https://donostio.github.io/LMSclubs/whatsnew.html">
+    <span class="bolt">⚡</span>
+    <span>Summary of Jan 2026 changes here</span>
+  </a>
+
+
+  <div class="actions">
+    <a href="lms_clubs_guide.html" class="guide-link">Guide to using this site</a>
+  </div>
+</header>
+
+<button id="filter-btn" aria-controls="filter-panel" aria-expanded="false">
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="white" class="icon">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M7 12h10M11 18h2" />
+  </svg>
+</button>
+
+<style>
+  header.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 22px;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+
+  header .logo img {
+    height: 65px;
+    max-width: 100%;
+    object-fit: contain;
+  }
+
+  header .title {
+    flex: 1;
+    text-align: center;
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0;
+    color: #111;
+  }
+
+  header .actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    margin-right: -6px;
+  }
+
+  header .guide-link {
+    font-weight: bold;
+    color: var(--red);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  header button {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #9333ea;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+  }
+
+  #filter-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #filter-btn .icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  header button:hover {
+    background: #7e22ce;
+  }
+
+  /* Floating filter button */
+  #filter-btn {
+    position: fixed !important;
+    bottom: 20vh;
+    right: calc(50% - 565px);
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(90deg, #ef4444, #000) !important;
+    border: none;
+    border-radius: 50%;
+  }
+
+  #filter-btn:hover {
+    background: linear-gradient(90deg, #dc2626, #1a1a1a) !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Mobile positioning for filter button */
+  @media (max-width: 1200px) {
+    #filter-btn {
+      right: 20px;
+    }
+  }
+
+  header button .icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  /* Mobile adjustments */
+  @media (max-width: 720px) {
+    header.top {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      grid-template-rows: auto auto;
+      gap: 10px 12px;
+      padding: 14px 16px;
+      align-items: center;
+    }
+
+    header .logo {
+      grid-column: 1;
+      grid-row: 1;
+      justify-self: start;
+    }
+
+    header .logo img {
+      height: 50px;
+    }
+
+    header .actions {
+      grid-column: 3;
+      grid-row: 1;
+      justify-self: end;
+      gap: 10px;
+      margin: 0;
+    }
+
+    header .title {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      text-align: center;
+      font-size: 18px;
+      margin: 0;
+      padding-top: 5px;
+    }
+
+    header .guide-link {
+      font-size: 14px;
+    }
+
+    header button {
+      width: 36px;
+      height: 36px;
+    }
+
+    header button .icon {
+      width: 18px;
+      height: 18px;
+    }
+  }
+</style>
+
+
+    <section style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+      <div style="min-width:260px;">
+        <label for="year-filter" style="display:block;font-weight:600;margin-bottom:2px;">Year Group</label>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <select id="year-filter" aria-label="Year group">
+            <option value="">All</option>
+            <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+            <option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option>
+          </select>
+
+          <div id="print-controls" class="print-controls">
+            <span id="year-message" style="color:var(--muted);margin-top:6px;">Filter by year</span>
+          </div>
+        </div>
+
+        <div style="margin-top:12px;">
+          <label for="search-input" style="display:block;font-weight:600;margin-bottom:6px;">Search</label>
+          <div class="search-filter-row">
+            <input id="search-input" placeholder="Search for a club..." aria-label="Search clubs" />
+            <div id="active-filters-summary" style="color:var(--muted);font-size:13px;">All clubs shown</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <main>
+      <div id="clubs-list" aria-live="polite"></div>
+      <div id="no-results" style="display:none;color:var(--muted);padding:18px;text-align:center;">No clubs found matching your criteria.</div>
+    </main>
+
+<div style="text-align:center;font-size:12px;color:var(--muted);margin-top:32px;">
+  <div style="color:var(--muted);">This site is maintained by an LMS parent 🌹</div>
+  <div style="margin-top:6px;color:var(--muted);">
+    Your feedback helps me make the site better for everyone <a href="https://forms.gle/5Gdrj6RPAEXf7jKy8" target="_blank" rel="noopener" style="color:var(--red)">Please share your thoughts💬</a>
+  </div>
+</div>
+
+  <div id="filter-overlay" class="filter-overlay" aria-hidden="true"></div>
+  
+  <aside id="filter-panel" class="filter-panel" aria-hidden="true" role="region" aria-label="Filters">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h2 style="margin:0;font-size:18px;">Filters</h2>
+      <button id="close-filter" style="background:#f3f4f6;border-radius:8px;padding:8px;border:none;cursor:pointer;">✕</button>
+    </div>
+
+    <div style="margin-bottom:14px;background:#f3f4f6;padding:10px;border-radius:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <strong>Day</strong>
+        <button id="clear-day" class="clear-link">Clear</button>
+      </div>
+      <div>
+        <label><input type="checkbox" class="day-filter" value="All" checked> All</label><br>
+        <label><input type="checkbox" class="day-filter" value="Monday"> Monday</label><br>
+        <label><input type="checkbox" class="day-filter" value="Tuesday"> Tuesday</label><br>
+        <label><input type="checkbox" class="day-filter" value="Wednesday"> Wednesday</label><br>
+        <label><input type="checkbox" class="day-filter" value="Thursday"> Thursday</label><br>
+        <label><input type="checkbox" class="day-filter" value="Friday"> Friday</label>
+      </div>
+    </div>
+
+    <div style="margin-bottom:14px;background:#f3f4f6;padding:10px;border-radius:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <strong>When</strong>
+        <button id="clear-when" class="clear-link">Clear</button>
+      </div>
+      <div>
+        <label><input type="checkbox" class="when-filter" value="All" checked> All</label><br>
+        <label><input type="checkbox" class="when-filter" value="Before School"> Before School</label><br>
+        <label><input type="checkbox" class="when-filter" value="Lunchtime"> Lunchtime</label><br>
+        <label><input type="checkbox" class="when-filter" value="After School"> After School</label>
+      </div>
+    </div>
+
+    <div style="margin-bottom:14px;background:#f3f4f6;padding:10px;border-radius:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <strong>Department</strong>
+        <button id="clear-dept" class="clear-link">Clear</button>
+      </div>
+      <select id="dept-dropdown" style="width:100%;padding:8px;border-radius:6px;border:1px solid #e6e6e6;">
+        <option value="">All</option>
+      </select>
+    </div>
+
+    <div style="margin-bottom:14px;background:#f3f4f6;padding:10px;border-radius:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <strong>Club Name</strong>
+        <button id="clear-club-name" class="clear-link">Clear</button>
+      </div>
+      <div id="club-list" style="max-height:200px;overflow:auto;border:1px solid #e6e6e6;border-radius:6px;padding:6px;">
+        </div>
+    </div>
+
+    <div style="margin-top:auto;">
+      <button id="clear-all" style="width:100%;padding:10px;border-radius:10px;border:2px solid #ef4444;background:#fff;cursor:pointer;">
+        Clear All Filters
+      </button>
+    </div>
+  </aside>
+
+
+  <iframe id="print-iframe" style="display:none;"></iframe>
+
+<script>
+/* -----------------------------
+   Utility & state
+   ----------------------------- */
+const STORAGE_KEY = 'lms_selected_clubs_v_final';
+let clubsData = [];
+let selectedClubs = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'));
+
+const clubsListEl = document.getElementById('clubs-list');
+const yearFilterEl = document.getElementById('year-filter');
+const searchInputEl = document.getElementById('search-input');
+const printControlsEl = document.getElementById('print-controls');
+const yearMessageEl = document.getElementById('year-message');
+const filterBtn = document.getElementById('filter-btn');
+const filterPanel = document.getElementById('filter-panel');
+const filterOverlay = document.getElementById('filter-overlay');
+const closeFilter = document.getElementById('close-filter');
+
+function saveSelections(){ try { localStorage.setItem(STORAGE_KEY, JSON.stringify([...selectedClubs])); } catch(e){ console.warn('save failed', e); } }
+function esc(s){ return String(s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+
+/* Toast message functionality */
+function showToastMessage(message, targetElement) {
+  // Remove existing toast if any
+  const existingToast = document.querySelector('.toast-message');
+  if(existingToast) existingToast.remove();
+  
+  const toast = document.createElement('div');
+  toast.className = 'toast-message';
+  toast.textContent = message;
+  
+  // Position over the target element
+  const rect = targetElement.getBoundingClientRect();
+  toast.style.left = rect.left + 'px';
+  toast.style.top = (rect.top - 50) + 'px';
+  
+  document.body.appendChild(toast);
+  
+  // Show toast
+  setTimeout(() => toast.classList.add('show'), 10);
+  
+  // Hide and remove toast after 3 seconds.
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
+/* Check for duplicate clubs */
+function checkForDuplicateClub(newClub) {
+  const selectedClubsData = clubsData.filter(c => selectedClubs.has(c.urn));
+  return selectedClubsData.some(c => c.day === newClub.day && c.when === newClub.when);
+}
+
+/* -----------------------------
+   Cat animations with proper logic from old site
+   ----------------------------- */
+const catImages = [
+    'images/11C.png',
+    'images/22C.png',
+    'images/33.png'
+];
+const catContainer = document.getElementById('cat-container');
+const catImageElement = document.getElementById('cat-image');
+const catWrapper = document.getElementById('cat-wrapper');
+let interactionCount = 0;
+
+// Updated cat frequency settings with 30s minimum delay
+const catIntervalMin = 30;
+const catIntervalMax = 50;
+let nextCatInteraction = Math.floor(Math.random() * (catIntervalMax - catIntervalMin + 1)) + catIntervalMin;
+
+// Separate counter for ascending cat (100-200 interactions - much rarer)
+let ascendingCatCount = 0;
+const ascendingCatMin = 80;
+const ascendingCatMax = 120;
+let nextAscendingCatInteraction = Math.floor(Math.random() * (ascendingCatMax - ascendingCatMin + 1)) + ascendingCatMin;
+
+// 30-second minimum delay tracking
+let lastCatTime = Date.now();
+const CAT_MIN_DELAY = 20000; // 30 seconds in milliseconds
+
+// Flag to prevent multiple animations running simultaneously
+let animationInProgress = false;
+
+// Function to show ascending cat specifically
+const showAscendingCat = () => {
+    // Set animation in progress flag
+    animationInProgress = true;
+    
+    const catIndex = Math.floor(Math.random() * catImages.length);
+    const selectedCatImage = catImages[catIndex];
+
+    // Clear previous animation classes and styles
+    catContainer.classList.remove('is-active', 'from-top', 'from-right', 'from-bottom', 'from-left', 'ascending-cat', 'slide-down');
+    catContainer.style.transform = '';
+    catImageElement.style.transform = '';
+
+    const animations = ['from-top', 'from-right', 'from-bottom', 'from-left'];
+    const chosenAnimation = animations[Math.floor(Math.random() * animations.length)];
+    
+    // Standard slide animations - set image source here to ensure consistency
+    catImageElement.src = selectedCatImage;
+    catContainer.classList.add(chosenAnimation);
+    setTimeout(() => {
+        catContainer.classList.add('is-active');
+    }, 50);
+
+    // Slide out after 2 seconds
+    setTimeout(() => {
+        catContainer.classList.remove('is-active');
+        
+        // Clear animation in progress flag
+        animationInProgress = false;
+    }, 4000);
+};
+
+// Function to show cat with random slide animation (excluding ascending cat)
+const showCat = () => {
+    // Set animation in progress flag
+    animationInProgress = true;
+    
+    const catIndex = Math.floor(Math.random() * catImages.length);
+    const selectedCatImage = catImages[catIndex];
+
+    // Clear previous animation classes and styles
+    catContainer.classList.remove('is-active', 'from-top', 'from-right', 'from-bottom', 'from-left', 'ascending-cat', 'slide-down');
+    catContainer.style.transform = '';
+    catImageElement.style.transform = '';
+
+    const animations = ['from-top', 'from-right', 'from-bottom', 'from-left'];
+    const chosenAnimation = animations[Math.floor(Math.random() * animations.length)];
+    
+    // Standard slide animations - set image source here to ensure consistency
+    catImageElement.src = selectedCatImage;
+    catContainer.classList.add(chosenAnimation);
+    setTimeout(() => {
+        catContainer.classList.add('is-active');
+    }, 50);
+
+    // Slide out after 2 seconds
+    setTimeout(() => {
+        catContainer.classList.remove('is-active');
+        
+        // Clear animation in progress flag
+        animationInProgress = false;
+    }, 4000);
+};
+
+const handleInteraction = () => {
+    const currentTime = Date.now();
+    
+    // Always increment counters
+    ascendingCatCount++;
+    interactionCount++;
+    
+    // Prevent starting new animations while one is in progress
+    if (animationInProgress) {
+        return;
+    }
+    
+    // Check if enough time has passed since last cat (30s minimum)
+    if ((currentTime - lastCatTime) < CAT_MIN_DELAY) {
+        return;
+    }
+    
+    // Check which cats are eligible to trigger
+    const canAscending = ascendingCatCount >= nextAscendingCatInteraction;
+    const canRegular = interactionCount >= nextCatInteraction;
+    
+    if (canAscending && canRegular) {
+        // Both are eligible - randomly choose one (50/50 chance)
+        if (Math.random() < 0.5) {
+            showAscendingCat();
+            ascendingCatCount = 0;
+            nextAscendingCatInteraction = Math.floor(Math.random() * (ascendingCatMax - ascendingCatMin + 1)) + ascendingCatMin;
+        } else {
+            showCat();
+            interactionCount = 0;
+            nextCatInteraction = Math.floor(Math.random() * (catIntervalMax - catIntervalMin + 1)) + catIntervalMin;
+        }
+        lastCatTime = currentTime;
+    } else if (canAscending) {
+        // Only ascending cat is eligible
+        showAscendingCat();
+        ascendingCatCount = 0;
+        nextAscendingCatInteraction = Math.floor(Math.random() * (ascendingCatMax - ascendingCatMin + 1)) + ascendingCatMin;
+        lastCatTime = currentTime;
+    } else if (canRegular) {
+        // Only regular cat is eligible
+        showCat();
+        interactionCount = 0;
+        nextCatInteraction = Math.floor(Math.random() * (catIntervalMax - catIntervalMin + 1)) + catIntervalMin;
+        lastCatTime = currentTime;
+    }
+};
+
+// Add global interaction event handlers for cat animations (removed mousemove to prevent rapid triggering)
+document.addEventListener('click', handleInteraction);
+document.addEventListener('keydown', handleInteraction);
+document.addEventListener('scroll', handleInteraction);
+
+// Removed automatic timer to ensure cats only appear on real user interactions
+
+/* -----------------------------
+   CSV fetch & parsing
+   ----------------------------- */
+async function fetchClubsCSV(){
+  try{
+    const res = await fetch('clubs.csv', { cache: 'no-store' });
+    const text = await res.text();
+    const lines = text.trim().split(/\r?\n/).filter(Boolean);
+    if(lines.length <= 1){ clubsData = []; renderClubs(); populateDeptOptions();
+    populateClubList();
+    initFilterLogic(); updatePrintControls(); return; }
+    const rows = lines.slice(1);
+    clubsData = rows.map(r => {
+      const cols = r.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(c => c.trim().replace(/^"|"$/g,''));
+      const yearRaw = cols[5] || '';
+      let yearArr = [];
+      if(yearRaw && yearRaw.toLowerCase().includes('all years')) yearArr = ['All Years'];
+      else if(yearRaw) yearArr = yearRaw.split(/[,&\/\s]+/).map(x=>x.trim()).filter(Boolean);
+      return {
+        urn: cols[9] ? String(cols[9]) : (cols[0] + '::' + Math.random().toString(36).slice(2,8)),
+        name: cols[0] || '',
+        when: cols[1] || '',
+        day: cols[2] || '',
+        weeks: cols[3] || '',
+        time: cols[4] || '',
+        yearRaw: yearRaw,
+        year: yearArr.length ? yearArr : (yearRaw ? [yearRaw] : []),
+        location: cols[6] || '',
+        staff: cols[7] || '',
+        department: cols[8] || ''
+      };
+    });
+    populateDeptOptions();
+    populateClubList();
+    initFilterLogic();
+    renderClubs();
+    updatePrintControls();
+    updateActiveFiltersSummary();
+  }catch(err){
+    console.error('Failed to load clubs.csv', err);
+    clubsListEl.innerHTML = '<div style="padding:14px;background:#fff;border-radius:10px;color:#b91c1c">Error loading clubs.csv — check file and console</div>';
+  }
+}
+
+/* -----------------------------
+   Populate Department options
+   ----------------------------- */
+
+function populateDeptOptions(){
+  const dropdown = document.getElementById('dept-dropdown');
+  if(!dropdown) return;
+  const depts = [...new Set(clubsData.map(c=>c.department).filter(Boolean))].sort();
+  dropdown.innerHTML = '<option value="">All</option>' +
+    depts.map(d=>`<option value="${esc(d)}">${esc(d)}</option>`).join('');
+}
+
+/* -----------------------------
+   Filter matching helpers
+   ----------------------------- */
+function getActiveFilters(){
+  const year = yearFilterEl.value;
+  const search = (searchInputEl.value || '').trim().toLowerCase();
+  const selectedDays = Array.from(document.querySelectorAll('.day-filter:checked')).map(i=>i.value);
+  const selectedWhens = Array.from(document.querySelectorAll('.when-filter:checked')).map(i=>i.value);
+  const selectedDept = document.getElementById('dept-dropdown')?.value || '';
+  const selectedClubs = Array.from(document.querySelectorAll('.club-filter:checked')).map(i=>i.value);
+  return { year, search, selectedDays, selectedWhens, selectedDept, selectedClubs };
+}
+
+function clubMatchesFilter(club, f){
+  if(f.search){
+    const hay = (club.name + ' ' + (club.department||'') + ' ' + (club.location||'') + ' ' + (club.staff||'') + ' ' + (club.year?club.year.join(' '):'')).toLowerCase();
+    if(!hay.includes(f.search)) return false;
+  }
+  if(f.year){
+    if(!club.year.includes('All Years') && !club.year.includes(f.year)) return false;
+  }
+  if(f.selectedDept && club.department !== f.selectedDept) return false;
+  if(f.selectedClubs.length && !f.selectedClubs.includes(club.name)) return false;
+  if(f.selectedDays.length && !f.selectedDays.includes('All')){
+    if(!f.selectedDays.includes(club.day)) return false;
+  }
+  if(f.selectedWhens.length && !f.selectedWhens.includes('All')){
+    if(!f.selectedWhens.includes(club.when)) return false;
+  }
+  return true;
+}
+
+
+/* Build a single club card (reuses existing styles/logic) */
+function buildClubCard(club){
+  const card = document.createElement('div');
+card.className = 'club-card';
+  card.setAttribute('data-when', club.when || '');
+  if(selectedClubs.has(club.urn)) card.classList.add('selected');
+
+  let yearsText = Array.isArray(club.year) ? club.year.join(', ') : String(club.year || '');
+  if (/all\s*years/i.test(yearsText)) yearsText = 'All Years';
+  yearsText = `<span class="muted">Years:</span> ${esc(yearsText)}`;
+
+  card.innerHTML = `
+    <div style="font-weight:700;font-size:15px;margin-bottom:6px;color:#111;">${esc(club.name)}</div>
+    <div style="font-size:13px;color:#111;margin-bottom:6px;">${esc(club.day)} • ${esc(club.when)}</div>
+    <div style="font-size:12px;color:#111;margin-bottom:6px;">${yearsText}</div>
+    <div style="font-size:12px;color:var(--muted);">Where: <span class="muted">${esc(club.location)}</span> • Who: <span class="muted">${esc(club.staff)}</span></div>
+  `;
+
+  const cbWrap = document.createElement('div'); 
+  cbWrap.className = 'club-select-box';
+  if(yearFilterEl.value) cbWrap.classList.add('show');
+
+  const cb = document.createElement('input'); 
+  cb.type = 'checkbox'; 
+  cb.value = club.urn; 
+  cb.checked = selectedClubs.has(club.urn);
+  cb.disabled = !(yearFilterEl.value || selectedClubs.has(cb.value));
+  cb.title = cb.disabled ? 'Select a year to enable selection' : 'Select this club';
+
+  cb.addEventListener('change', (e)=>{
+    if(e.target.checked){
+      if(checkForDuplicateClub(club)){ showToastMessage('You have more than one club at that time...', card); }
+      selectedClubs.add(club.urn); 
+      card.classList.add('selected');
+    } else {
+      selectedClubs.delete(club.urn); 
+      card.classList.remove('selected');
+    }
+    saveSelections(); 
+    updatePrintControls();
+  });
+
+  cbWrap.appendChild(cb); 
+  card.appendChild(cbWrap);
+  return card;
+}
+
+/* -----------------------------
+   Render club cards
+   ----------------------------- */
+// Special club note logic removed as requested
+
+function renderClubs() {
+  const f = getActiveFilters();
+  const filtered = clubsData.filter(c => clubMatchesFilter(c, f));
+
+  clubsListEl.innerHTML = '';
+  clubsListEl.classList.add('weekday-grid');
+
+  const noResultsEl = document.getElementById('no-results');
+  if (filtered.length === 0) {
+    if (noResultsEl) noResultsEl.style.display = 'block';
+    return;
+  } else {
+    if (noResultsEl) noResultsEl.style.display = 'none';
+  }
+
+  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+  const timeOrder = ['Before School', 'Lunchtime', 'After School'];
+
+  days.forEach(day => {
+    const col = document.createElement('div');
+    col.className = 'day-column';
+
+    const header = document.createElement('div');
+    header.className = 'day-col-header';
+    header.textContent = day;
+    col.appendChild(header);
+
+    // Filter clubs for this day and sort by time category
+    const clubsForDay = filtered
+      .filter(c => c.day === day)
+      .sort((a, b) => {
+        const iA = timeOrder.indexOf(a.when);
+        const iB = timeOrder.indexOf(b.when);
+        const aIdx = (iA === -1) ? 999 : iA;
+        const bIdx = (iB === -1) ? 999 : iB;
+        return aIdx - bIdx;
+      });
+
+    clubsForDay.forEach(club => col.appendChild(buildClubCard(club)));
+    clubsListEl.appendChild(col);
+  });
+}
+/* -----------------------------
+   Print controls & printing
+   - Single Print Year-group Timetable button only
+   - Helper text disappears when at least one club selected
+   ----------------------------- */
+function updatePrintControls(){
+  printControlsEl.innerHTML = '';
+  const year = yearFilterEl.value;
+  if(!year){
+    yearMessageEl.textContent = 'Filter by year';
+    printControlsEl.appendChild(yearMessageEl);
+    return;
+  }
+
+  const btnYear = document.createElement('button');
+  btnYear.type = 'button';
+  btnYear.innerHTML = 'Print My<br>Timetable';
+  btnYear.className = 'print-button';
+  btnYear.style.padding = '8px 12px';
+  btnYear.style.borderRadius = '10px';
+  btnYear.style.border = 'none';
+  btnYear.style.background = 'linear-gradient(90deg,#ef4444,#000)';
+  btnYear.style.color = '#fff';
+  btnYear.style.fontWeight = '700';
+  btnYear.id = 'print-year-btn';
+  btnYear.addEventListener('click', ()=>{
+    const y = yearFilterEl.value;
+    const clubsForYear = clubsData.filter(c => c.year.includes('All Years') || c.year.includes(y));
+    const selected = clubsForYear.filter(c => selectedClubs.has(c.urn));
+    const others = clubsForYear.filter(c => !selectedClubs.has(c.urn));
+    const title = `My Year ${y} Clubs Timetable`;
+    const html = createPrintHTML(title, selected, others, { showOtherTitle:false });
+    printViaIframe(html);
+  });
+  printControlsEl.appendChild(btnYear);
+
+  // Helper text or deselect button based on selections
+  if(selectedClubs.size === 0){
+    const helper = document.createElement('span');
+    helper.innerHTML = 'Select clubs to highlight<br>them on your timetable';
+    helper.style.color = 'var(--muted)';
+    helper.style.marginLeft = '8px';
+    helper.style.fontSize = '13px';
+    printControlsEl.appendChild(helper);
+  } else {
+    const deselectBtn = document.createElement('button');
+    deselectBtn.className = 'deselect-btn';
+    deselectBtn.innerHTML = `
+      Deselect All Clubs
+    `;
+    deselectBtn.style.marginLeft = '8px';
+    deselectBtn.addEventListener('click', ()=>{
+      selectedClubs.clear();
+      saveSelections();
+      renderClubs();
+      updatePrintControls();
+    });
+    printControlsEl.appendChild(deselectBtn);
+  }
+}
+
+/* -----------------------------
+   Build grid and create print HTML
+   - Selected clubs boxed with Where/Who
+   - Others grey italic smaller
+   ----------------------------- */
+function buildGridForPrint(clubs){
+  const days = ['Monday','Tuesday','Wednesday','Thursday','Friday'];
+  const whens = ['Before School','Lunchtime','After School'];
+  const grid = {};
+  whens.forEach(w=>{ grid[w] = {}; days.forEach(d=>grid[w][d] = []); });
+  clubs.forEach(c=>{
+    const when = c.when || 'After School';
+    const day = c.day || '';
+    // FIX: correctly reference when/day instead of undefined w/d
+    if(grid[when] && grid[when][day]) grid[when][day].push(c);
+  });
+  return { grid, days, whens };
+}
+
+function createPrintHTML(title, selectedArr, othersArr, options){
+  options = options || {};
+  const combined = (selectedArr || []).concat(othersArr || []);
+  const { grid, days, whens } = buildGridForPrint(combined);
+  
+  // Select random cat image for print
+  const catImages = ['images/11C.png', 'images/22C.png', 'images/33.png'];
+  const randomCat = catImages[Math.floor(Math.random() * catImages.length)];
+  
+  const styles = `
+    <style>
+      @page { size: A4 landscape; margin: 12mm; }
+      body{ font-family: Inter, Arial, sans-serif; color:#000; margin:0; padding:12px; position: relative; }
+      .header{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+      h1{ font-size:18pt; margin:0; flex-grow: 1; }
+      .logo{ height: 70px; }
+      table{ width:100%; border-collapse:collapse; table-layout:fixed; font-size:10pt; position: relative; }
+      th,td{ border:1px solid #ddd; padding:6px; vertical-align:top; word-break:break-word; position: relative; }
+      th{ background:#f8fafc; text-align:left; font-weight:700; }
+      .club-name{ font-weight:700; display:block; margin-bottom:6px; }
+      .selected-box{ border:2px solid #000; padding:6px; margin-bottom:6px; }
+      .other-club{ font-style:italic; color:#6b7280; font-size:90%; line-height:0.95; margin-bottom:4px; display:block; }
+      .cat-in-cell{ position: absolute; top: -110px; left: 50%; transform: translateX(-50%); width: 60px; height: auto; z-index: 10; opacity: 0.8; }
+      .footer{ margin-top: 20px; text-align: center; font-size: 8pt; color: #6b7280; }
+    </style>
+  `;
+  
+  let html = `<div id="printable-area">`;
+  html += `<div class="header">`;
+  html += `<h1>${esc(title)}</h1>`;
+  html += `<img src="images/LMSlogo.png" alt="LMS Logo" class="logo">`;
+  html += `</div>`;
+  
+  if(options.showOtherTitle){
+    html += `<div style="font-style:italic;color:#6b7280;margin-bottom:8px;">Other clubs available to me</div>`;
+  }
+  html += `<table><thead><tr><th style="width:16%;">When / Day</th>${days.map(d=>`<th>${d}</th>`).join('')}</tr></thead><tbody>`;
+  whens.forEach(w=>{
+    html += `<tr><th>${w}<div style="font-size:10pt;color:#6b7280;margin-top:6px;">${w === 'Before School' ? '08:00-08:30' : w === 'Lunchtime' ? '13:00-13:30' : '15:30-16:30'}</div></th>`;
+    days.forEach((d, dayIndex) => {
+      const cell = grid[w][d] || [];
+      let cellHtml = '';
+      
+      // Add cat to Tuesday column (index 1) in the first row
+      if(dayIndex === 1 && w === whens[0]) {
+        cellHtml += `<img src="${randomCat}" alt="cat" class="cat-in-cell">`;
+      }
+      
+      if(!cell.length){ 
+        html += `<td style="min-height:70px;">${cellHtml}—</td>`; 
+        return; 
+     }
+      cell.forEach(c=>{
+        if(selectedArr && selectedArr.find(s=>s.urn === c.urn)){
+          const ytext = c.year.includes('All Years') ? 'All Years' : ('Years: '+esc(c.year.join(', ')));
+          cellHtml += `<div class="selected-box"><div class="club-name">${esc(c.name)}</div><div style="font-size:10pt;color:#000;">${ytext}</div><div style="font-size:10pt;color:#000;margin-top:6px;"><span style="color:#6b7280;">Where:</span> ${esc(c.location)}, <span style="color:#6b7280;">Who:</span> ${esc(c.staff)}</div></div>`;
+        }
+      });
+      cell.forEach(c=>{
+        if(othersArr && othersArr.find(o=>o.urn === c.urn)){
+          const ytext = c.year.includes('All Years') ? 'All Years' : ('Years: '+esc(c.year.join(', ')));
+          cellHtml += `<div class="other-club">${esc(c.name)} (${esc(ytext)})</div>`;
+        }
+      });
+      html += `<td>${cellHtml}</td>`;
+    });
+    html += `</tr>`;
+  });
+  html += `</tbody></table>`;
+  html += `<div class="footer">This tool is provided by an LMS parent. Your feedback helps me make the timetable better for everyone. Please share your thoughts here tiny.cc/ClubsSiteFeedback</div>`;
+  html += `</div>`;
+  return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)}</title>${styles}</head><body>${html}</body></html>`;
+}
+
+function printViaIframe(html){
+  const iframe = document.getElementById('print-iframe');
+  const doc = iframe.contentDocument || iframe.contentWindow.document;
+  doc.open();
+  doc.write(html);
+  doc.close();
+  setTimeout(()=>{
+    try{ iframe.contentWindow.focus(); iframe.contentWindow.print(); }catch(e){ alert('Unable to trigger print — please use your browser print command.'); }
+  }, 400);
+}
+
+/* -----------------------------
+   Filter panel wiring & helpers
+   ----------------------------- */
+
+document.getElementById('clear-day').addEventListener('click', ()=>{ document.querySelectorAll('.day-filter').forEach(c=>c.checked = c.value === 'All'); applyFiltersAndRender(); });
+document.getElementById('clear-when').addEventListener('click', ()=>{ document.querySelectorAll('.when-filter').forEach(c=>c.checked = c.value === 'All'); applyFiltersAndRender(); });
+document.getElementById('clear-club-name').addEventListener('click', ()=>{ document.querySelectorAll('.club-filter').forEach(c=>c.checked=false); applyFiltersAndRender(); });
+document.getElementById('clear-dept').addEventListener('click', ()=>{ document.getElementById('dept-dropdown').value=''; applyFiltersAndRender(); });
+document.getElementById('clear-all').addEventListener('click', ()=>{ document.querySelectorAll('.day-filter, .when-filter, .dept-filter').forEach(c=>c.checked = false); document.querySelector('.day-filter[value=\"All\"]').checked = true; document.querySelector('.when-filter[value=\"All\"]').checked = true; applyFiltersAndRender(); });
+
+function initFilterLogic(){
+  function wireGroup(selector){
+    const boxes = Array.from(document.querySelectorAll(selector));
+    if(!boxes.length) return;
+    boxes.forEach(b=>{
+      b.addEventListener('change', ()=>{
+        if(b.value === 'All' && b.checked){
+          boxes.filter(x=>x.value !== 'All').forEach(x=>x.checked = false);
+        } else if(b.value !== 'All' && b.checked){
+          const allBox = boxes.find(x=>x.value === 'All');
+          if(allBox) allBox.checked = false;
+        }
+        if(!boxes.some(x=>x.checked)){
+          const allBox = boxes.find(x=>x.value === 'All');
+          if(allBox) allBox.checked = true;
+        }
+        applyFiltersAndRender();
+      });
+    });
+  }
+  wireGroup('.day-filter');
+  wireGroup('.when-filter');
+  wireGroup('.dept-filter');
+  wireGroup('.club-filter');
+}
+
+/* -----------------------------
+   Apply filters, summary, and events
+   ----------------------------- */
+
+function populateClubList(selectedYear){
+  const container = document.getElementById('club-list');
+  if(!container) return;
+
+  // Filter clubs based on the selected year
+  let filteredClubs = clubsData;
+  if (selectedYear) {
+    filteredClubs = clubsData.filter(c => c.year.includes('All Years') || c.year.includes(selectedYear));
+  }
+  
+  const clubs = [...new Set(filteredClubs.map(c=>c.name).filter(Boolean))].sort();
+  
+  container.innerHTML = clubs.map(n=>
+    `<label><input type="checkbox" class="club-filter" value="${esc(n)}"> ${esc(n)}</label><br>`
+  ).join('');
+  
+  // Also clear any previous selections from the filter panel
+  document.querySelectorAll('.club-filter').forEach(c => c.checked = false);
+}
+
+function applyFiltersAndRender(){
+ renderClubs(); updateActiveFiltersSummary(); updatePrintControls(); }
+
+function updateActiveFiltersSummary(){
+  const parts = [];
+  const year = yearFilterEl.value; if(year) parts.push(`Year: ${year}`);
+  const selectedDays = Array.from(document.querySelectorAll('.day-filter:checked')).map(i=>i.value);
+  if(selectedDays.length && !selectedDays.includes('All')) parts.push(`Day: ${selectedDays.join(', ')}`);
+  const selectedWhens = Array.from(document.querySelectorAll('.when-filter:checked')).map(i=>i.value);
+  if(selectedWhens.length && !selectedWhens.includes('All')) parts.push(`When: ${selectedWhens.join(', ')}`);
+  const selectedDept = document.getElementById('dept-dropdown')?.value;
+  if(selectedDept) parts.push(`Department: ${selectedDept}`);
+  const selectedClubs = Array.from(document.querySelectorAll('.club-filter:checked')).map(i=>i.value);
+  if(selectedClubs.length) parts.push(`Clubs: ${selectedClubs.join(', ')}`);
+  const search = (searchInputEl.value||'').trim();
+  if(search) parts.push(`Search: "${search}"`);
+  
+  const summaryEl = document.getElementById('active-filters-summary');
+  if (parts.length > 0) {
+    summaryEl.textContent = `Filtered: ${parts.join(' | ')}`;
+  } else {
+    summaryEl.textContent = 'All clubs shown';
+  }
+}
+
+function updateYearSelectColor(){ if(!yearFilterEl.value) yearFilterEl.style.color = 'var(--red)'; else yearFilterEl.style.color = '#111'; }
+yearFilterEl.addEventListener('change', ()=>{
+  const selectedYear = yearFilterEl.value;
+  updateYearSelectColor();
+  populateClubList(selectedYear);
+  // Re-run initFilterLogic to wire up new checkboxes after `populateClubList`
+  initFilterLogic(); 
+  document.querySelectorAll('#clubs-list input[type=checkbox]').forEach(cb=>{ cb.disabled = !(selectedYear || selectedClubs.has(cb.value)); if(cb.parentElement) { if(selectedYear) cb.parentElement.classList.add('show'); else cb.parentElement.classList.remove('show'); } });
+  applyFiltersAndRender();
+});
+updateYearSelectColor();
+
+searchInputEl.addEventListener('input', ()=>{ applyFiltersAndRender(); });
+
+document.addEventListener('change', (e)=>{ if(e.target && e.target.classList && e.target.classList.contains('dept-filter')) applyFiltersAndRender(); });
+
+/* -----------------------------
+   Init & CSV load
+   ----------------------------- */
+fetchClubsCSV();
+
+// Initialize filter logic after CSV load
+// MutationObserver removed to fix runtime error
+
+window.addEventListener('load', ()=>{
+  setTimeout(()=>{ 
+    document.querySelectorAll('#clubs-list input[type=checkbox]').forEach(cb=>{ 
+      cb.disabled = !(yearFilterEl.value || selectedClubs.has(cb.value)); 
+      if(cb.parentElement){ 
+        if(yearFilterEl.value) cb.parentElement.classList.add('show'); 
+        else cb.parentElement.classList.remove('show'); 
+      } 
+    }); 
+    
+    // Add club name filter event listener
+    const clubNameFilter = document.getElementById('club-name-filter');
+    if(clubNameFilter) {
+      clubNameFilter.addEventListener('input', applyFiltersAndRender);
+    }
+    
+    // Update clear-all to also clear club name filter
+    const clearAllBtn = document.getElementById('clear-all');
+    if(clearAllBtn) {
+      clearAllBtn.addEventListener('click', ()=>{
+        document.querySelectorAll('.day-filter, .when-filter, .dept-filter').forEach(c=>c.checked = false);
+        document.querySelector('.day-filter[value="All"]').checked = true;
+        document.querySelector('.when-filter[value="All"]').checked = true;
+        const clubNameFilter = document.getElementById('club-name-filter');
+        if(clubNameFilter) clubNameFilter.value = '';
+        applyFiltersAndRender();
+      });
+    }
+  }, 400);
+  updatePrintControls();
+  updateActiveFiltersSummary();
+});
+
+// Add missing event handlers for filter functionality
+document.getElementById('dept-dropdown').addEventListener('change', () => {
+  applyFiltersAndRender();
+  handleInteraction();
+});
+
+// Wire up filter panel events properly - make it toggleable
+filterBtn.addEventListener('click', () => {
+  const isOpen = filterPanel.classList.contains('open');
+  
+  if (isOpen) {
+    // Close panel
+    filterPanel.classList.remove('open');
+    filterOverlay.style.display = 'none';
+    filterBtn.setAttribute('aria-expanded','false');
+  } else {
+    // Open panel
+    filterPanel.classList.add('open');
+    filterOverlay.style.display = 'block';
+    filterBtn.setAttribute('aria-expanded','true');
+  }
+  
+  handleInteraction();
+});
+
+closeFilter.addEventListener('click', () => {
+  filterPanel.classList.remove('open');
+  filterOverlay.style.display = 'none';
+  filterBtn.setAttribute('aria-expanded','false');
+  handleInteraction();
+});
+
+filterOverlay.addEventListener('click', () => {
+  filterPanel.classList.remove('open');
+  filterOverlay.style.display = 'none';
+  filterBtn.setAttribute('aria-expanded','false');
+  handleInteraction();
+});
+
+// Clear button event handlers
+document.getElementById('clear-day').addEventListener('click', () => {
+  document.querySelectorAll('.day-filter').forEach(c => c.checked = c.value === 'All');
+  applyFiltersAndRender();
+  handleInteraction();
+});
+
+document.getElementById('clear-when').addEventListener('click', () => {
+  document.querySelectorAll('.when-filter').forEach(c => c.checked = c.value === 'All');
+  applyFiltersAndRender();
+  handleInteraction();
+});
+
+document.getElementById('clear-club-name').addEventListener('click', () => {
+  document.querySelectorAll('.club-filter').forEach(c => c.checked = false);
+  applyFiltersAndRender();
+  handleInteraction();
+});
+
+document.getElementById('clear-dept').addEventListener('click', () => {
+  document.getElementById('dept-dropdown').value = '';
+  applyFiltersAndRender();
+  handleInteraction();
+});
+
+document.getElementById('clear-all').addEventListener('click', () => {
+  searchInputEl.value = '';
+  document.getElementById('dept-dropdown').value = '';
+  document.querySelectorAll('.day-filter, .when-filter').forEach(c => c.checked = c.value === 'All');
+  document.querySelectorAll('.club-filter').forEach(c => c.checked = false);
+  applyFiltersAndRender();
+  handleInteraction();
+});
+
+// Initialize filter logic for checkbox groups
+function initFilterLogic() {
+  function wireGroup(selector) {
+    const boxes = Array.from(document.querySelectorAll(selector));
+    if (!boxes.length) return;
+    boxes.forEach(b => {
+      b.addEventListener('change', () => {
+        if (b.value === 'All' && b.checked) {
+          boxes.filter(x => x.value !== 'All').forEach(x => x.checked = false);
+        } else if (b.value !== 'All' && b.checked) {
+          const allBox = boxes.find(x => x.value === 'All');
+          if (allBox) allBox.checked = false;
+        }
+        if (!boxes.some(x => x.checked)) {
+          const allBox = boxes.find(x => x.value === 'All');
+          if (allBox) allBox.checked = true;
+        }
+        applyFiltersAndRender();
+        handleInteraction();
+      });
+    });
+  }
+  wireGroup('.day-filter');
+  wireGroup('.when-filter');
+  wireGroup('.club-filter');
+}
+
+// Initialize the application when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOM loaded, initializing LMS Clubs...');
+  fetchClubsCSV().then(() => {
+    // Populate the club list on initial load based on the current year selection
+    populateClubList(yearFilterEl.value);
+    initFilterLogic(); // Re-initialize logic after list is populated
+  });
+});
+
+// TEST: Trigger ascending cat on page load (disable before deploy)
+//window.addEventListener('load', () => showAscendingCat());
+</script>
+</body>
+</html>
