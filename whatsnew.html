@@ -3,107 +3,226 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>What’s New – LMS Clubs</title>
-
+  <title>What's New – LMS Clubs</title>
+  <link rel="icon" type="image/png" href="lms_logo.png">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
   <script src="https://cdn.tailwindcss.com"></script>
+<style>
+    :root {
+      --muted: #6b7280;
+      --red: #ef4444;
+      --black: #000;
+    }
 
-  <style>
-    body{
-      background:#000;
-      background-image:repeating-linear-gradient(
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background: #000;
+      background-image: repeating-linear-gradient(
         to right,
-        #ef4444,
-        #ef4444 2px,
+        var(--red),
+        var(--red) 2px,
         #000 2px,
         #000 24px
       );
-      font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial;
     }
 
-    .page{
-      max-width:900px;
-      margin:28px auto;
-      background:#fff;
-      border-radius:12px;
-      padding:32px;
-      box-shadow:0 18px 60px rgba(0,0,0,0.2);
-      position:relative;
+    .page {
+      max-width: 900px;
+      margin: 28px auto;
+      background: #fff;
+      border-radius: 12px;
+      padding: 28px;
+      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.20);
+      position: relative;
     }
 
-    h1{
-      font-size:48px;
-      font-weight:800;
-      text-align:center;
-      margin-bottom:32px;
-      color:#000;
+    h1 {
+      font-size: 44px;
+      font-weight: 700;
+      margin-bottom: 40px;
+      color: #111;
+      text-align: center;
     }
 
-    h2{
-      font-size:26px;
-      font-weight:800;
-      text-decoration:underline;
-      margin-top:36px;
-      margin-bottom:16px;
-      color:#000;
+    h2 {
+      font-size: 36px;
+      font-weight: 700;
+      margin-top: 40px;
+      margin-bottom: 12px;
+      color: #111;
     }
 
-    p{
-      margin-bottom:12px;
-      color:#333;
-      line-height:1.6;
+    p {
+      margin-bottom: 20px;
+      color: #333;
+      line-height: 1.6;
     }
 
-    ul{
-      margin-left:22px;
-      margin-bottom:22px;
+    hr {
+      border: none;
+      border-top: 1px solid #ddd;
+      margin: 40px 0;
+    }
+    
+    .intro-paragraph {
+      margin-bottom: 40px;
     }
 
-    li{
-      margin-bottom:8px;
+    ul {
+      padding-left: 20px;
+      margin-bottom: 24px;
+      list-style-type: disc;
+    }
+    
+    ul.sub-list {
+      list-style-type: circle;
+      margin-top: 10px;
+      margin-left: 20px;
+      padding-left: 20px;
     }
 
-    .back-button{
-      position:absolute;
-      top:28px;
-      right:28px;
-      background:#ef4444;
-      color:#fff;
-      padding:10px 18px;
-      border-radius:6px;
-      font-weight:600;
-      text-decoration:none;
-      font-size:14px;
+    li {
+      margin-bottom: 8px;
+      color: #333;
     }
 
-    .footer-text{
-      text-align:center;
-      font-size:12px;
-      color:#6b7280;
-      margin-top:40px;
+    .note {
+      background: #f3f4f6;
+      border-left: 4px solid #ef4444;
+      padding: 16px 20px;
+      border-radius: 8px;
+      margin: 40px 0;
+    }
+    
+    .note h2 {
+      margin-top: 0;
     }
 
-    @media (max-width:720px){
-      .back-button{
-        position:static;
-        display:block;
-        text-align:center;
-        margin-bottom:20px;
-      }
+    .footer-text {
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 40px;
     }
+    
+    .footer-link {
+      color: var(--red);
+      font-weight: 600;
+    }
+
+    .back-button {
+      position: absolute;
+      top: 28px;
+      right: 28px;
+      background-color: var(--red);
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 14px;
+      transition: background-color 0.2s;
+    }
+
+    .back-button:hover {
+      background-color: #dc2626;
+    }
+
+    .back-button-center {
+      background-color: var(--red);
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      transition: background-color 0.2s;
+      margin-top: 20px;
+    }
+
+    .back-button-center:hover {
+      background-color: #dc2626;
+    }
+    
+    /* Styles for the modal image viewer */
+    .image-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      visibility: hidden;
+      opacity: 0;
+      transition: visibility 0s, opacity 0.3s linear;
+    }
+
+    .image-modal.visible {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .modal-content {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-content img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .close-button {
+      position: absolute;
+      top: 15px;
+      right: 25px;
+      color: #fff;
+      font-size: 30px;
+      font-weight: bold;
+      cursor: pointer;
+      line-height: 1;
+    }
+
   </style>
 </head>
-
 <body>
-  <div class="page">
 
+  <div class="page" role="main">
     <a href="index.html" class="back-button">Back to the clubs</a>
+    <header>
+      <div class="header-logo" style="text-align:center; margin-bottom:20px;">
+        <a href="https://ladymargaret.lbhf.sch.uk/">
+          <img src="images/LMSlogo.png" alt="LMS Logo" style="height:75px; object-fit:contain;">
+        </a>
+      </div>
+    </header>
 
     <h1>Summary of Club Changes: January 2026</h1>
 
-    <h2>Changes Affecting All Years</h2>
+    <p></p>
 
-    <p><strong>New:</strong></p>
+    <h2>Changes Affecting All Years</h2>
+    
+    <p></p>
+    <p><span style="font-weight: bold;">New:</span></p>
     <ul>
       <li>Social Badminton (Monday before school, 08:00–08:30)</li>
       <li>Dance Rehearsal Space (Tuesday &amp; Thursday before school; Wednesday lunchtime)</li>
@@ -111,56 +230,62 @@
       <li>Just Dance (Thursday lunchtime)</li>
     </ul>
 
-    <p><strong>Removed:</strong></p>
+    <p></p>
+    <p><span style="font-weight: bold;">Removed:</span></p>
     <ul>
-      <li>Social Tennis (was Monday, Tuesday &amp; Thursday before school)</li>
+      <li>Social Tennis (was offered Monday, Tuesday, and Thursday before school)</li>
       <li>Bench ball (Tuesday lunchtime)</li>
       <li>Dodgeball (Wednesday lunchtime)</li>
       <li>Badminton (Wednesday lunchtime)</li>
       <li>Tag Rugby (Thursday after school)</li>
     </ul>
 
-    <p><strong>Continuing:</strong></p>
-    <p>
-      Band Club, Cricket, Football, Homework Club, Jazz Band, Lunch Club,
-      Music Practice Club, Orchestra, Philosophy Club, String Ensemble,
-      and Ukulele Club.
-    </p>
+    <p></p>
+    <p><span style="font-weight: bold;">Continuing:</span></p>
+    <p>Band Club, Cricket, Football, Homework Club, Jazz Band, Lunch Club, Music Practice Club, Orchestra, Philosophy Club, String Ensemble, and Ukulele Club.</p>
+
+    <hr>
+
+    <p></p>
 
     <h2>Changes for Years 7–9</h2>
 
-    <p><strong>New:</strong></p>
+    <p></p>
+    <p><span style="font-weight: bold;">New:</span></p>
     <ul>
       <li>Wood Workshop (Monday lunchtime)</li>
       <li>Puzzle Club (Tuesday lunchtime)</li>
       <li>D&amp;T Club (Friday lunchtime)</li>
     </ul>
 
-    <p><strong>Removed:</strong></p>
+    <p></p>
+    <p><span style="font-weight: bold;">Removed:</span></p>
     <ul>
       <li>Explore Revise Discover (Monday lunchtime)</li>
       <li>Junior Debate (Tuesday lunchtime)</li>
       <li>Current Affairs Club (Thursday lunchtime)</li>
     </ul>
 
-    <p><strong>Time changes:</strong></p>
-    <p>Mathletes moved to Friday lunchtime (was Monday)</p>
+    <p></p>
+    <p><span style="font-weight: bold;">Time changes:</span></p>
+    <ul>
+      <li>Mathletes moved to Friday lunchtime (was Monday)</li>
+    </ul>
 
-    <p><strong>Continuing:</strong></p>
-    <p>
-      Art 4 Fun, Charity Club, Christian Union groups, Crafternoons,
-      History Club, Jewellery Making, Junior Drama Club, Junior STEM,
-      Scrapbooking, Sewing Club, and Wellness Room.
-    </p>
+    <p></p>
+    <p><span style="font-weight: bold;">Continuing:</span></p>
+    <p>Art 4 Fun, Charity Club, Christian Union groups, Crafternoons, History Club, Jewellery Making, Junior Drama Club, Junior STEM, Scrapbooking, Sewing Club, and Wellness Room.</p>
 
-    <p>
-      <strong>Lower School Choir</strong> has been renamed to
-      <strong>Junior Choir</strong> (still Thursday lunchtime).
-    </p>
+    <p><span style="font-weight: bold;">Lower School Choir</span> renamed to <span style="font-weight: bold;">Junior Choir</span> (still Thursday lunchtime).</p>
+
+    <hr>
+
+    <p></p>
 
     <h2>Changes for Years 8–13</h2>
 
-    <p><strong>New:</strong></p>
+    <p></p>
+    <p><span style="font-weight: bold;">New:</span></p>
     <ul>
       <li>Contemporary Dance (Wednesday after school)</li>
       <li>Dance rehearsal opportunities expanded</li>
@@ -169,52 +294,58 @@
       <li>Social Sciences (Thursday lunchtime, Year 12)</li>
     </ul>
 
-    <p><strong>Removed:</strong></p>
+    <p></p>
+    <p><span style="font-weight: bold;">Removed:</span></p>
     <ul>
       <li>Senior Debate (was Monday after school, Week 1 only, Years 10–13)</li>
       <li>Literary Society (was Tuesday lunchtime, Year 12)</li>
     </ul>
 
-    <p><strong>Time / structure changes:</strong></p>
-    <p>
-      Netball (Wednesday after school) is now squad (invite) only.<br>
-      Netball (Monday after school) now has two groups: Year 7, and Years 8–13.<br>
-      Extended Reading Group moved from Monday to Tuesday &amp; Wednesday after school.<br>
-      Street Dance extended to 17:30–19:00 (was 17:30–18:30).<br>
-      Basketball replaces Tag Rugby on Thursday after school.
-    </p>
+    <p></p>
+    <p><span style="font-weight: bold;">Time / structure changes:</span></p>
+    <ul>
+      <li>Netball (Wednesday after school) is now squad (invite) only.</li>
+      <li>Netball (Monday after school) now has two groups: Year 7, and Years 8–13.</li>
+      <li>Extended Reading Group moved from Monday to Tuesday and Wednesday after school.</li>
+      <li>Street Dance extended to 17:30–19:00 (was 17:30–18:30).</li>
+      <li>Basketball replaces Tag Rugby on Thursday after school.</li>
+    </ul>
 
-    <p><strong>Continuing:</strong></p>
-    <p>
-      Basketball, Chamber Choir, Christian Union, Extended Reading Group,
-      Football, Model United Nations, Netball, Orchestra, Philosophy Club,
-      Street Dance, and Youth Alpha (Years 9–10).
-    </p>
+    <p></p>
+    <p><span style="font-weight: bold;">Continuing:</span></p>
+    <p>Basketball, Chamber Choir, Christian Union, Extended Reading Group, Football, Model United Nations, Netball, Orchestra, Philosophy Club, Street Dance, and Youth Alpha (Years 9–10).</p>
+
+    <hr>
+
+    <p></p>
 
     <h2>Changes for Sixth Formers (Years 12–13)</h2>
 
-    <p><strong>New:</strong></p>
+    <p></p>
+    <p><span style="font-weight: bold;">New:</span></p>
     <ul>
       <li>Pride Plus (Wednesday lunchtime, location B28)</li>
       <li>English Scholars (Wednesday lunchtime, Year 11, invite only)</li>
     </ul>
 
-    <p><strong>Removed:</strong></p>
+    <p></p>
+    <p><span style="font-weight: bold;">Removed:</span></p>
     <ul>
       <li>Literary Society</li>
-      <li>Christian Group (Years 12–13), separate from Christian Union</li>
+      <li>Christian Group (Years 12–13) (separate from Christian Union)</li>
     </ul>
 
-    <p><strong>Continuing:</strong></p>
-    <p>
-      Chamber Choir, Extended Reading Group, Model United Nations,
-      and Social Sciences.
-    </p>
+    <p></p>
+    <p><span style="font-weight: bold;">Continuing:</span></p>
+    <p>Chamber Choir, Extended Reading Group, Model United Nations, and Social Sciences.</p>
 
     <div class="footer-text">
       <p>This site is maintained by an LMS parent</p>
+      <p>Your feedback helps me make the site better for everyone –
+        <a href="https://forms.gle/5Gdrj6RPAEXf7jKy8" target="_blank" rel="noopener" class="footer-link">Please share your thoughts 💬</a>
+      </p>
     </div>
-
   </div>
+
 </body>
 </html>
