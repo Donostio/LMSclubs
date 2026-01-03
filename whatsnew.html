@@ -10,7 +10,9 @@
 
   <style>
     :root { --muted:#6b7280; --red:#ef4444; --black:#000; }
-    html, body { height:100%; margin:0; font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+
+    html, body { height:100%; margin:0; font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial; -webkit-font-smoothing:antialiased; }
+
     body{
       background:#000;
       background-image:repeating-linear-gradient(
@@ -21,6 +23,7 @@
         #000 24px
       );
     }
+
     .page{
       max-width:900px;
       margin:28px auto;
@@ -30,12 +33,17 @@
       box-shadow:0 18px 60px rgba(0,0,0,0.20);
       position:relative;
     }
-    h1{ font-size:26px; font-weight:800; margin-bottom:18px; color:#000; }
-    h2{ font-size:18px; font-weight:700; margin-top:34px; margin-bottom:12px; color:#000; }
-    h3{ font-size:15px; font-weight:700; margin-top:18px; margin-bottom:8px; color:#000; }
+
+    h1{ font-size:72px; font-weight:800; margin:0 0 22px; color:#000; text-align:center; line-height:1.05; }
+    h2{ font-size:36px; font-weight:800; text-decoration: underline; margin-top:34px; margin-bottom:14px; color:#000; }
+    h3{ font-size:15px; font-weight:700; margin-top:18px; margin-bottom:8px; color:#111; }
+
     p{ margin-bottom:18px; color:#333; line-height:1.6; }
+
     hr{ border:none; border-top:1px solid #ddd; margin:32px 0; }
+
     ul{ padding-left:20px; margin-bottom:18px; }
+    ul.sub-list{ list-style-type:circle; margin-top:8px; margin-left:18px; padding-left:18px; }
     li{ margin-bottom:8px; color:#333; }
 
     .note{
@@ -46,17 +54,35 @@
       margin:26px 0;
     }
 
+    .pill{
+      display:inline-block;
+      font-size:12px;
+      font-weight:700;
+      padding:4px 10px;
+      border-radius:999px;
+      margin-right:8px;
+      border:1px solid rgba(0,0,0,0.08);
+    }
+    .pill-new{ background:rgba(34,197,94,0.12); color:#065f46; }
+    .pill-removed{ background:rgba(239,68,68,0.12); color:#7f1d1d; }
+    .pill-time{ background:rgba(59,130,246,0.12); color:#1e3a8a; }
+    .pill-cont{ background:rgba(107,114,128,0.12); color:#111; }
+
     .back-button{
       position:absolute;
       top:28px; right:28px;
       background-color:var(--red);
       color:white;
       padding:10px 20px;
+      border:none;
       border-radius:6px;
       font-weight:600;
       text-decoration:none;
+      display:inline-block;
       font-size:14px;
+      transition:background-color 0.2s;
     }
+    .back-button:hover{ background-color:#dc2626; }
 
     .footer-text{ text-align:center; font-size:12px; color:var(--muted); margin-top:34px; }
     .footer-link{ color:var(--red); font-weight:600; }
@@ -69,140 +95,137 @@
 </head>
 
 <body>
-  <div class="page">
+  <div class="page" role="main">
     <a href="index.html" class="back-button">Back to the clubs</a>
 
-    <h1><strong>Summary of Club Changes: January 2026</strong></h1>
+    <header>
+      <div class="header-logo" style="text-align:center; margin-bottom:20px;">
+        <a href="https://ladymargaret.lbhf.sch.uk/">
+          <img src="images/LMSlogo.png" alt="LMS Logo" style="height:75px; object-fit:contain;">
+        </a>
+      </div>
+    </header>
 
-    <div class="note">
-      <h3>How to read this</h3>
-      <ul>
-        <li><strong>New</strong> – Brand new additions for Spring 2026.</li>
-        <li><strong>Removed</strong> – No longer offered (or replaced).</li>
-        <li><strong>Time change</strong> – Same club, different day/time or structure.</li>
-        <li><strong>Continuing</strong> – Still running this term.</li>
-      </ul>
-    </div>
-
-    <hr>
+    <h1>Summary of Club Changes: January 2026</h1>
+    <p class="intro-paragraph">
+      A quick summary of what’s changed since the previous clubs list. Use the sections below to jump straight to what matters for your child’s year group.
+    </p>
+<hr>
 
     <h2>Changes Affecting All Years</h2>
 
-    <p><strong>New:</strong></p>
+    <h3><span class="pill pill-new">New</span></h3>
     <ul>
-      <li>Social Badminton (Monday before school, 08:00–08:30)</li>
-      <li>Dance Rehearsal Space (Tuesday &amp; Thursday before school; Wednesday lunchtime)</li>
-      <li>Commercial Dance (Tuesday lunchtime)</li>
-      <li>Just Dance (Thursday lunchtime)</li>
+      <li><strong>Social Badminton</strong> (Monday before school, 08:00–08:30)</li>
+      <li><strong>Dance Rehearsal Space</strong> (Tuesday &amp; Thursday before school; Wednesday lunchtime)</li>
+      <li><strong>Commercial Dance</strong> (Tuesday lunchtime)</li>
+      <li><strong>Just Dance</strong> (Thursday lunchtime)</li>
     </ul>
 
-    <p><strong>Removed:</strong></p>
+    <h3><span class="pill pill-removed">Removed</span></h3>
     <ul>
-      <li>Social Tennis (was Monday, Tuesday &amp; Thursday before school)</li>
-      <li>Bench ball (Tuesday lunchtime)</li>
-      <li>Dodgeball (Wednesday lunchtime)</li>
-      <li>Badminton (Wednesday lunchtime)</li>
-      <li>Tag Rugby (Thursday after school)</li>
+      <li><strong>Social Tennis</strong> (was Monday, Tuesday &amp; Thursday before school)</li>
+      <li><strong>Bench ball</strong> (Tuesday lunchtime)</li>
+      <li><strong>Dodgeball</strong> (Wednesday lunchtime)</li>
+      <li><strong>Badminton</strong> (Wednesday lunchtime)</li>
+      <li><strong>Tag Rugby</strong> (Thursday after school)</li>
     </ul>
 
-    <p><strong>Continuing:</strong></p>
+    <h3><span class="pill pill-cont">Continuing</span></h3>
     <p>
-      Band Club, Cricket, Football, Homework Club, Jazz Band, Lunch Club, Music Practice Club,
-      Orchestra, Philosophy Club, String Ensemble, and Ukulele Club.
+      Band Club, Cricket, Football, Homework Club, Jazz Band, Lunch Club, Music Practice Club, Orchestra, Philosophy Club,
+      String Ensemble, and Ukulele Club.
     </p>
 
-    <br>
+    <hr>
 
     <h2>Changes for Years 7–9</h2>
 
-    <p><strong>New:</strong></p>
+    <h3><span class="pill pill-new">New</span></h3>
     <ul>
-      <li>Wood Workshop (Monday lunchtime)</li>
-      <li>Puzzle Club (Tuesday lunchtime)</li>
-      <li>D&amp;T Club (Friday lunchtime)</li>
+      <li><strong>Wood Workshop</strong> (Monday lunchtime)</li>
+      <li><strong>Puzzle Club</strong> (Tuesday lunchtime)</li>
+      <li><strong>D&amp;T Club</strong> (Friday lunchtime)</li>
     </ul>
 
-    <p><strong>Removed:</strong></p>
+    <h3><span class="pill pill-removed">Removed</span></h3>
     <ul>
-      <li>Explore Revise Discover (Monday lunchtime)</li>
-      <li>Junior Debate (Tuesday lunchtime)</li>
-      <li>Current Affairs Club (Thursday lunchtime)</li>
+      <li><strong>Explore Revise Discover</strong> (Monday lunchtime)</li>
+      <li><strong>Junior Debate</strong> (Tuesday lunchtime)</li>
+      <li><strong>Current Affairs Club</strong> (Thursday lunchtime)</li>
     </ul>
 
-    <p><strong>Time changes:</strong></p>
+    <h3><span class="pill pill-time">Time changes</span></h3>
     <ul>
-      <li>Mathletes moved to Friday lunchtime (was Monday)</li>
+      <li><strong>Mathletes</strong> moved to <strong>Friday lunchtime</strong> (was Monday)</li>
     </ul>
 
-    <p><strong>Continuing:</strong></p>
+    <h3><span class="pill pill-cont">Continuing</span></h3>
     <p>
-      Art 4 Fun, Charity Club, Christian Union groups, Crafternoons, History Club, Jewellery Making,
-      Junior Drama Club, Junior STEM, Scrapbooking, Sewing Club, and Wellness Room.
+      Art 4 Fun, Charity Club, Christian Union groups, Crafternoons, History Club, Jewellery Making, Junior Drama Club,
+      Junior STEM, Scrapbooking, Sewing Club, and Wellness Room.
+      <br><br>
+      <strong>Lower School Choir</strong> is renamed to <strong>Junior Choir</strong> (still Thursday lunchtime).
     </p>
 
-    <p><strong>Lower School Choir</strong> is renamed to <strong>Junior Choir</strong> (still Thursday lunchtime).</p>
+    <hr>
 
-    <br>
+    <h2>Changes for Years 8–13</h2>
 
-    <h2>Changes for Yearsears 8–13</h2>
-
-    <p><strong>New:</strong></p>
+    <h3><span class="pill pill-new">New</span></h3>
     <ul>
-      <li>Contemporary Dance (Wednesday after school)</li>
-      <li>Dance rehearsal opportunities expanded</li>
-      <li>Psychology (Monday lunchtime, Year 10 only)</li>
-      <li>Politics Club (Wednesday lunchtime, Years 10–13)</li>
-      <li>Social Sciences (Thursday lunchtime, Year 12)</li>
+      <li><strong>Contemporary Dance</strong> (Wednesday after school)</li>
+      <li><strong>Dance rehearsal opportunities expanded</strong></li>
+      <li><strong>Psychology</strong> (Monday lunchtime, <strong>Year 10 only</strong>)</li>
+      <li><strong>Politics Club</strong> (Wednesday lunchtime, <strong>Years 10–13</strong>)</li>
+      <li><strong>Social Sciences</strong> (Thursday lunchtime, <strong>Year 12</strong>)</li>
     </ul>
 
-    <p><strong>Removed:</strong></p>
+    <h3><span class="pill pill-removed">Removed</span></h3>
     <ul>
-      <li>Senior Debate (was Monday after school, Week 1 only, Years 10–13)</li>
-      <li>Literary Society (was Tuesday lunchtime, Year 12)</li>
+      <li><strong>Senior Debate</strong> (was Monday after school, Week 1 only, Years 10–13)</li>
+      <li><strong>Literary Society</strong> (was Tuesday lunchtime, Year 12)</li>
     </ul>
 
-    <p><strong>Time / structure changes:</strong></p>
+    <h3><span class="pill pill-time">Time / structure changes</span></h3>
     <ul>
-      <li>Netball (Wednesday after school) is now squad (invite) only.</li>
-      <li>Netball (Monday after school) now has two groups: Year 7, and Years 8–13.</li>
-      <li>Extended Reading Group moved from Monday to Tuesday &amp; Wednesday after school.</li>
-      <li>Street Dance extended to 17:30–19:00 (was 17:30–18:30).</li>
-      <li>Basketball replaces Tag Rugby on Thursday after school.</li>
+      <li><strong>Netball (Wednesday after school)</strong> is now <strong>squad (invite) only</strong>.</li>
+      <li><strong>Netball (Monday after school)</strong> now has two groups: <strong>Year 7</strong>, and <strong>Years 8–13</strong>.</li>
+      <li><strong>Extended Reading Group</strong> moved from Monday to <strong>Tuesday &amp; Wednesday</strong> after school.</li>
+      <li><strong>Street Dance</strong> extended to <strong>17:30–19:00</strong> (was 17:30–18:30).</li>
+      <li><strong>Basketball</strong> replaces <strong>Tag Rugby</strong> on Thursday after school.</li>
     </ul>
 
-    <p><strong>Continuing:</strong></p>
+    <h3><span class="pill pill-cont">Continuing</span></h3>
     <p>
-      Basketball, Chamber Choir, Christian Union, Extended Reading Group, Football,
-      Model United Nations, Netball, Orchestra, Philosophy Club, Street Dance,
-      and Youth Alpha (Years 9–10).
+      Basketball, Chamber Choir, Christian Union, Extended Reading Group, Football, Model United Nations, Netball, Orchestra,
+      Philosophy Club, Street Dance, and Youth Alpha (Years 9–10).
     </p>
 
-    <br>
+    <hr>
 
     <h2>Changes for Sixth Formers (Years 12–13)</h2>
 
-    <p><strong>New:</strong></p>
+    <h3><span class="pill pill-new">New</span></h3>
     <ul>
-      <li>Pride Plus (Wednesday lunchtime, location B28)</li>
-      <li>English Scholars (Wednesday lunchtime, Year 11, invite only)</li>
+      <li><strong>Pride Plus</strong> (Wednesday lunchtime, location <strong>B28</strong>)</li>
+      <li><strong>English Scholars</strong> (Wednesday lunchtime, <strong>Year 11</strong>, invite only)</li>
     </ul>
 
-    <p><strong>Removed:</strong></p>
+    <h3><span class="pill pill-removed">Removed</span></h3>
     <ul>
-      <li>Literary Society</li>
-      <li>Christian Group (Years 12–13) (separate from Christian Union)</li>
+      <li><strong>Literary Society</strong></li>
+      <li><strong>Christian Group (Years 12–13)</strong> (separate from Christian Union)</li>
     </ul>
 
-    <p><strong>Continuing:</strong></p>
+    <h3><span class="pill pill-cont">Continuing</span></h3>
     <p>
       Chamber Choir, Extended Reading Group, Model United Nations, and Social Sciences.
     </p>
 
     <div class="footer-text">
       <p>This site is maintained by an LMS parent</p>
-      <p>Your feedback helps make the site better –
-        <a href="https://forms.gle/5Gdrj6RPAEXf7jKy8" class="footer-link" target="_blank">Please share your thoughts 💬</a>
-      </p>
+      <p>Your feedback helps me make the site better for everyone – <a href="https://forms.gle/5Gdrj6RPAEXf7jKy8" target="_blank" rel="noopener" class="footer-link">Please share your thoughts 💬</a></p>
     </div>
   </div>
 </body>
