@@ -1,6 +1,6 @@
 Club Name,When,Day,Week(s),Time,Year Group(s),Location,Staff Initials,Department,URN
 Social Badminton,Before School,Monday,1&2,08:00-08:30,All,Gym,KE,PE,1
-Lunch Club (Begins 12:45),Lunchtime,Monday,1&2,12:45-13:30,All,A03,LSAs,SEN,2
+Lunch Club (12:45 start),Lunchtime,Monday,1&2,12:45-13:30,All,A03,LSAs,SEN,2
 Art 4 Fun,Lunchtime,Monday,1&2,13:00-13:30,7 8 9,A27,Sixth Formers,Art,3
 Band Club,Lunchtime,Monday,1&2,13:00-13:30,All,Auditorium,Sixth Formers,Music,4
 Chamber Choir Sectionals,Lunchtime,Monday,1&2,13:00-13:30,10 11 12 13,D13,OM / Section Leaders,Music,5
@@ -13,7 +13,7 @@ Netball,After School,Monday,1&2,15:30-16:30,8 9 10 11 12 13,Courts,KE,PE,11
 Netball,After School,Monday,1&2,15:30-16:30,7,Courts,External Coach,PE,12
 Chamber Choir,After School,Monday,1&2,15:30-16:45,10 11 12 13,D13,OM,Music,13
 Dance Rehearsal Space,Before School,Tuesday,1&2,08:00-08:30,All,Gym,HM,PE,14
-Lunch Club (Begins 12:45),Lunchtime,Tuesday,1&2,12:45-13:30,All,A03,LSAs,SEN,15
+Lunch Club (12:45 start),Lunchtime,Tuesday,1&2,12:45-13:30,All,A03,LSAs,SEN,15
 Puzzle Club,Lunchtime,Tuesday,1&2,13:00-13:30,7 8 9,C01,Sixth Formers,Maths,16
 Christian Union,Lunchtime,Tuesday,1&2,13:00-13:30,9,Chaplain's Room,HW,Pastoral,17
 Christian Union,Lunchtime,Tuesday,1&2,13:00-13:30,10 11,Chapel,Youth Worker,Pastoral,18
@@ -26,7 +26,7 @@ Football,After School,Tuesday,1&2,15:30-16:30,All,Courts,External Coach,PE,24
 Homework Club,After School,Tuesday,1&2,15:30-16:30,All,A22,LSAs,SEN,25
 Extended Reading Group,After School,Tuesday,1&2,15:40-16:40,12 & 13,D15,,SSS,26
 Strength Club,Before School,Wednesday,1&2,08:00-08:30,10 11 12 13,Gym,EB,PE,27
-Lunch Club (Begins 12:45),Lunchtime,Wednesday,1&2,12:45-13:30,All,A03,LSAs,SEN,28
+Lunch Club (12:45 start),Lunchtime,Wednesday,1&2,12:45-13:30,All,A03,LSAs,SEN,28
 Pride Plus,Lunchtime,Wednesday,1&2,13:00-13:30,6th Formers,B28,,BU,29
 Christian Union,Lunchtime,Wednesday,1&2,13:00-13:30,8,Chapel,Youth Worker,Pastoral,30
 Dance Rehearsal Space,Lunchtime,Wednesday,1&2,13:00-13:30,All,Gym,HM / EB,PE,31
@@ -48,7 +48,7 @@ Orchestra,After School,Wednesday,1&2,15:30-16:45,All,Auditorium,OM,Music,46
 Street Dance,After School,Wednesday,1&2,15:30-17:00,All,Gym,HM,PE,47
 Extended Reading Group,After School,Wednesday,1&2,15:40-16:40,12 & 13,D15,,SSS,48
 Dance Rehearsal Space,Before School,Thursday,1&2,08:00-08:30,All,Gym,HM,PE,49
-Lunch Club (Begins 12:45),Lunchtime,Thursday,1&2,12:45-13:30,All,A03,LSAs,SEN,50
+Lunch Club (12:45 start),Lunchtime,Thursday,1&2,12:45-13:30,All,A03,LSAs,SEN,50
 Christian Union,Lunchtime,Thursday,1&2,13:00-13:30,7,Chapel,KM,Pastoral,51
 Crafternoons,Lunchtime,Thursday,1&2,13:00-13:30,7 8 9,C05,Sixth Formers,Pastoral,52
 Junior Choir,Lunchtime,Thursday,1&2,13:00-13:30,7 8 9,Auditorium,OM,Music,53
@@ -57,10 +57,11 @@ Just Dance,Lunchtime,Thursday,1&2,13:00-13:30,All,Gym,Sports Prefect,PE,55
 Social Sciences,Lunchtime,Thursday,1&2,13:00-13:30,12,B29,Sixth Formers,Social Sciences,56
 Basketball,After School,Thursday,1&2,15:30-16:30,All,Gym,MC,PE,57
 Homework Club,After School,Thursday,1&2,15:30-16:30,All,A22,LSAs,SEN,58
-Lunch Club (Begins 12:45),Lunchtime,Friday,1&2,12:45-13:30,All,A03,LSAs,SEN,59
+Lunch Club (12:45 start),Lunchtime,Friday,1&2,12:45-13:30,All,A03,LSAs,SEN,59
 Charity Club,Lunchtime,Friday,1&2,13:00-13:30,7 8 9,Chaplain's Room,HW,Pastoral,60
 Wellness Room,Lunchtime,Friday,1&2,13:00-13:30,7 8 9,C05,Sixth Formers,Pastoral,61
 D&T Club,Lunchtime,Friday,1&2,13:00-13:30,7 8 9,B01,Sixth Formers,DT,62
 
 Mathletes,Lunchtime,Friday,1&2,13:00-13:30,7 8 9,B22,KL,Maths,63
+
 
