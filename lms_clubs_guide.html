@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LMS Clubs has moved</title>
+  <meta name="robots" content="noindex">
+  <!-- Permanent forwarding page: LMS Clubs now lives at https://clubslms.donostio.uk.
+       Old links, bookmarks and QR codes rely on this. Do not delete, rename or make this
+       repository private. No analytics or cookies on this page. -->
+  <script>
+    (function () {
+      var NEW_SITE = 'https://clubslms.donostio.uk';
+      // Keep the page (index, guide, What's New ...), any ?query and #anchor.
+      var page = location.pathname.replace(/^\/LMSclubs(\/|$)/i, '/');
+      if (page === '/index.html') page = '/';
+      var params = new URLSearchParams(location.search);
+      // Label these visits in Google Analytics on the new site, so old-link use can be counted.
+      if (!params.has('utm_source')) {
+        params.set('utm_source', 'old_github_link');
+        params.set('utm_medium', 'redirect');
+      }
+      location.replace(NEW_SITE + page + '?' + params.toString() + location.hash);
+    })();
+  </script>
+  <link rel="canonical" href="https://clubslms.donostio.uk/">
+  <meta http-equiv="refresh" content="0; url=https://clubslms.donostio.uk/">
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 40px 16px; background: #f5f5f5; color: #111; text-align: center; }
+    a { color: #b3001b; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <p>LMS Clubs has moved to <a href="https://clubslms.donostio.uk/">clubslms.donostio.uk</a>.</p>
+  <p>If you are not taken there automatically, please use the link above and update your bookmark.</p>
+</body>
+</html>
